@@ -1,9 +1,9 @@
 # EcosystemSimulation
 
-##Introduction
+## Introduction
 
-##Process
+## Process
 
-##Results
+## Results
 
-##Bibliography
+## Bibliography
