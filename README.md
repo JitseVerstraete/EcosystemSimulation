@@ -26,3 +26,7 @@ When Blips reproduce they pass their genes on to the next generation. Whenever t
 ## What's next?
 
 ## Bibliography
+https://en.wikipedia.org/wiki/Heredity#Dominant_and_recessive_alleles \
+https://en.wikipedia.org/wiki/Population_genetics \
+https://www.biologysimulations.com/simulations \
+https://www.youtube.com/watch?v=r_It_X7v-1E&ab_channel=SebastianLague 
