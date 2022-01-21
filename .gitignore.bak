@@ -2,6 +2,4 @@ Project/.vs/**
 Project/Logs/**
 Project/Library/**
 Project/obj/**
-*.vsconfig
-*.csproj
-*.sln
+/.vsconfig
