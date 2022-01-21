@@ -1,5 +1,7 @@
-Project/.vs/**
-Project/Logs/**
-Project/Library/**
-Project/obj/**
-/.vsconfig
+EcosystemProject/.vs/**
+EcosystemProject/Logs/**
+EcosystemProject/Library/**
+EcosystemProject/obj/**
+*.vsconfig
+*.csproj
+*.sln
