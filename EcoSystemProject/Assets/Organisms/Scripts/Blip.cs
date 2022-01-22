@@ -11,8 +11,14 @@ public class Blip : BaseOrganism
     }
 
     // Update is called once per frame
-    protected override void UpdateTimeStep()
+    public override void UpdateTimeStep()
     {
+        //random movement
+        float angle = Random.Range(0f, 360f);
+        Quaternion rot = Quaternion.AngleAxis(angle, Vector3.forward);
+        Vector3 MovementDir = rot * Vector3.right;
+
+        gameObject.transform.position += MovementDir * m_MaxSpeed;
 
     }
 }

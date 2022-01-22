@@ -141,7 +141,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_TimeStep: 1
-  m_SetWorldSize: 500
+  m_InitialNrBlips: 5
+  m_BlipPrefab: {fileID: 5731147864839474513, guid: 3d5540021d87d224baeae94745275966, type: 3}
+  m_SetWorldSize: 50
 --- !u!1 &206917990
 GameObject:
   m_ObjectHideFlags: 0
@@ -151,8 +153,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 206917992}
-  - component: {fileID: 206917991}
   - component: {fileID: 206917993}
+  - component: {fileID: 206917991}
   m_Layer: 0
   m_Name: Background
   m_TagString: Untagged
@@ -200,17 +202,17 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 27db603de8d42534d8804994c3e63a04, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
-  m_DrawMode: 2
-  m_Size: {x: 10, y: 10}
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
-  m_SpriteSortPoint: 1
+  m_SpriteSortPoint: 0
 --- !u!4 &206917992
 Transform:
   m_ObjectHideFlags: 0
@@ -400,4 +402,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MinZoomSize: 20
-  m_MaxZoomSize: 100

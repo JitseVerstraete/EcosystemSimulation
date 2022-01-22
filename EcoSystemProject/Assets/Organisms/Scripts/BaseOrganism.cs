@@ -13,13 +13,13 @@ public class BaseOrganism : MonoBehaviour
     }
 
     //make a custom Update that Updates the organism for one time step
-    protected virtual void UpdateTimeStep()
+    public virtual void UpdateTimeStep()
     {
 
     }
 
     //todo: make a class for genetic information
-    protected float m_MaxSpeed;
-    protected float m_VisionRange;
+    protected float m_MaxSpeed = 3f;
+    protected float m_VisionRange = 5f;
 
 }
