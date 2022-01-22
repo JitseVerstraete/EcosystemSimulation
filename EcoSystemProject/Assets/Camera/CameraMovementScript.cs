@@ -7,43 +7,77 @@ public class CameraMovementScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        Camera.main.orthographicSize = m_MaxZoomSize;
+        m_WorldSize = SimulationScript.GetWorldSize();
     }
 
     // Update is called once per frame
     void Update()
     {
+        //ZOOMING
+        float newCameraZoom = Camera.main.orthographicSize - m_ZoomSpeed * Input.mouseScrollDelta.y;
+
+        Camera.main.orthographicSize = Mathf.Clamp(newCameraZoom, m_MinZoomSize, m_MaxZoomSize);
+
+
+
+        //MOVING
+
+        //get camera pos and size
+        m_HalfHeight = Camera.main.orthographicSize;
+        m_Halfwidth = m_HalfHeight * Camera.main.aspect;
 
         //camera movement
-        if(Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(1))
             m_MouseDown = true;
-        else if(Input.GetMouseButtonUp(1))
+        else if (Input.GetMouseButtonUp(1))
             m_MouseDown = false;
 
         m_CurrentMousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-       
+
+
+
+
+        Vector3 camPos = Camera.main.transform.position;
+        float xMin = -m_WorldSize + m_Halfwidth;
+        float xMax = m_WorldSize - m_Halfwidth;
+        float yMin = -m_WorldSize + m_HalfHeight;
+        float yMax = m_WorldSize - m_HalfHeight;
+
+        float newX = camPos.x;
+        float newY = camPos.y;
 
         if (m_MouseDown)
         {
-            Camera.main.transform.position +=  m_PreviousMousePosition - m_CurrentMousePosition;
+            newX += m_PreviousMousePosition.x - m_CurrentMousePosition.x;
+            newY += m_PreviousMousePosition.y - m_CurrentMousePosition.y;
+
         }
 
-       m_PreviousMousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        newX = Mathf.Clamp(newX, xMin, xMax);
+        newY = Mathf.Clamp(newY, yMin, yMax);
+        Camera.main.transform.position = new Vector3(newX, newY, 0f);
 
 
 
-        //zooming
-        float newCameraZoom = Camera.main.orthographicSize - m_ZoomSpeed * Input.mouseScrollDelta.y;
-       
-        Camera.main.orthographicSize = Mathf.Clamp(newCameraZoom, 1f, 10f); ;
-        print(Camera.main.orthographicSize);
-
-
-
+        //set the current mouse position as previous mouse position
+        m_PreviousMousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
     }
 
+
+    //DATA MEMEBERS
+
+    public float m_MinZoomSize = 5f;
+    public float m_MaxZoomSize = 20f;
+
+    //private members
     private Vector3 m_PreviousMousePosition;
     private Vector3 m_CurrentMousePosition;
-    private float m_ZoomSpeed =1f;
+    private float m_ZoomSpeed = 1f;
     private bool m_MouseDown = false;
+
+    private float m_HalfHeight;
+    private float m_Halfwidth;
+
+    private float m_WorldSize;
 }
