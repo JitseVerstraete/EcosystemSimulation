@@ -9,7 +9,10 @@ public class SimulationScript : MonoBehaviour
     {
         //setup the simulation here
         m_Timer = m_TimeStep;
-        m_WorldSize = m_SetWorldSize;
+        m_WorldSize.x = m_SetWorldSize * Camera.main.aspect;
+        m_WorldSize.y = m_SetWorldSize;
+
+    
     }
 
     // Update is called once per frame
@@ -23,23 +26,9 @@ public class SimulationScript : MonoBehaviour
 
         }
 
-        //draw world border
-        Vector3 center = Vector3.zero;
-        Vector3 bottomLeft = new Vector3(center.x - m_WorldSize, center.y - m_WorldSize, 0f);
-        Vector3 topLeft = new Vector3(center.x - m_WorldSize, center.y + m_WorldSize, 0f);
-        Vector3 topRight = new Vector3(center.x + m_WorldSize, center.y + m_WorldSize, 0f);
-        Vector3 bottomRight = new Vector3(center.x + m_WorldSize, center.y - m_WorldSize, 0f);
-
-        Debug.DrawLine(bottomLeft, topLeft, Color.red, 10f, false);
-        Debug.DrawLine(topLeft, topRight, Color.red, 10f, false);
-        Debug.DrawLine(topRight, bottomRight, Color.red, 10f, false);
-        Debug.DrawLine(bottomRight, bottomLeft, Color.red, 10f, false);
-
-        
-
     }
     
-    static public float GetWorldSize()
+    static public Vector3 GetWorldSize()
     {
         return m_WorldSize;
     }
@@ -53,6 +42,6 @@ public class SimulationScript : MonoBehaviour
     //world border
     [SerializeField]
     private float m_SetWorldSize = 100f;
-    static float m_WorldSize;
+    static Vector2 m_WorldSize;
 
 }

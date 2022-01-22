@@ -7,8 +7,10 @@ public class CameraMovementScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Camera.main.orthographicSize = m_MaxZoomSize;
+
         m_WorldSize = SimulationScript.GetWorldSize();
+        m_MaxZoomSize = m_WorldSize.y;
+        Camera.main.orthographicSize = m_MaxZoomSize;
     }
 
     // Update is called once per frame
@@ -39,10 +41,10 @@ public class CameraMovementScript : MonoBehaviour
 
 
         Vector3 camPos = Camera.main.transform.position;
-        float xMin = -m_WorldSize + m_Halfwidth;
-        float xMax = m_WorldSize - m_Halfwidth;
-        float yMin = -m_WorldSize + m_HalfHeight;
-        float yMax = m_WorldSize - m_HalfHeight;
+        float xMin = -m_WorldSize.x + m_Halfwidth;
+        float xMax = m_WorldSize.x - m_Halfwidth;
+        float yMin = -m_WorldSize.y + m_HalfHeight;
+        float yMax = m_WorldSize.y - m_HalfHeight;
 
         float newX = camPos.x;
         float newY = camPos.y;
@@ -68,7 +70,7 @@ public class CameraMovementScript : MonoBehaviour
     //DATA MEMEBERS
 
     public float m_MinZoomSize = 5f;
-    public float m_MaxZoomSize = 20f;
+    private float m_MaxZoomSize = 0f;
 
     //private members
     private Vector3 m_PreviousMousePosition;
@@ -79,5 +81,5 @@ public class CameraMovementScript : MonoBehaviour
     private float m_HalfHeight;
     private float m_Halfwidth;
 
-    private float m_WorldSize;
+    private Vector2 m_WorldSize;
 }

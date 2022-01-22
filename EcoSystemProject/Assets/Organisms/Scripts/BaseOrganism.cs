@@ -18,4 +18,8 @@ public class BaseOrganism : MonoBehaviour
 
     }
 
+    //todo: make a class for genetic information
+    protected float m_MaxSpeed;
+    protected float m_VisionRange;
+
 }
