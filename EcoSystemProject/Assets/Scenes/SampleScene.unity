@@ -140,10 +140,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a095f6dc1bc5fec45b99017b81830b30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_TimeStep: 1
-  m_InitialNrBlips: 5
-  m_BlipPrefab: {fileID: 5731147864839474513, guid: 3d5540021d87d224baeae94745275966, type: 3}
+  m_TimeStep: 0.01
   m_SetWorldSize: 50
+  m_BlipPrefab: {fileID: 5731147864839474513, guid: 3d5540021d87d224baeae94745275966, type: 3}
+  m_InitialNrBlips: 100
+  m_BlipLifespan: 9999
+  m_BlipHunger: 100
+  m_FoodPrefab: {fileID: 8736920607726299253, guid: 65ce9c9f1ff31394db8d54eeeced501f, type: 3}
+  m_AmountOfFood: 300
 --- !u!1 &206917990
 GameObject:
   m_ObjectHideFlags: 0

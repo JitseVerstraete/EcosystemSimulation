@@ -12,18 +12,30 @@ public class BaseOrganism : MonoBehaviour
         
     }
 
-    //make a custom Update that Updates the organism for one time step
-    public virtual void UpdateTimeStep()
+    public bool IsDead()
     {
-
+        return m_Dead;
     }
 
+    //make a custom Update that Updates the organism for one time step
+    protected virtual void UpdateTimeStep()
+    {}
+
     //STATS
+    //is it dead?
+    protected bool m_Dead = false;
     //hunger
     protected float m_Hunger;
+    protected float m_MaxHunger;
     //lifetime
-    protected float m_LifeTime;
+    protected int m_Age;
+    protected int m_MaxAge;
     //reproductive urge
+
+
+    protected Vector3 m_TargetPos;
+    protected Vector3 m_PreviousPos;
+    protected float m_PosInterpolationTValue = 0f;
 
 
     //todo: make a class for genetic information
