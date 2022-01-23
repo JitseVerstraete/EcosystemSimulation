@@ -15,12 +15,18 @@ public class SimulationScript : MonoBehaviour
         //initialize Stating Population
         m_Blips = new List<Blip>();
         for(int i = 0; i < m_InitialNrBlips; i++)
-        {
-            GameObject temp =  Instantiate(m_BlipPrefab);
-            Blip blipScript =  temp.GetComponent<Blip>();
+        {   
+            //random position
+            Vector3 blipPos = new Vector3(Random.Range(-m_WorldSize.x, m_WorldSize.x), Random.Range(-m_WorldSize.y, m_WorldSize.y), 0f);
+            //random rotation
+            Quaternion blipRot = Quaternion.AngleAxis( Random.Range(0f, 360f), Vector3.forward);
+            GameObject tempBlip =  Instantiate(m_BlipPrefab);
+            tempBlip.transform.position = blipPos;
+            tempBlip.transform.rotation = blipRot;
+            Blip blipScript = tempBlip.GetComponent<Blip>();
             if(blipScript == null)
             {
-                blipScript = temp.AddComponent<Blip>();
+                blipScript = tempBlip.AddComponent<Blip>();
             }
 
             m_Blips.Add(blipScript);
@@ -74,5 +80,10 @@ public class SimulationScript : MonoBehaviour
         {
             b.UpdateTimeStep();
         }
+    }
+
+    private void RecordData()
+    {
+
     }
 }

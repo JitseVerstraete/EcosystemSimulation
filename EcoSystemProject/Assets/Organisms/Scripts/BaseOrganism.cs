@@ -18,6 +18,14 @@ public class BaseOrganism : MonoBehaviour
 
     }
 
+    //STATS
+    //hunger
+    protected float m_Hunger;
+    //lifetime
+    protected float m_LifeTime;
+    //reproductive urge
+
+
     //todo: make a class for genetic information
     protected float m_MaxSpeed = 3f;
     protected float m_VisionRange = 5f;
