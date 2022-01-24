@@ -33,8 +33,21 @@ public class SimulationScript : MonoBehaviour
                 blipScript = tempBlip.AddComponent<Blip>();
             }
 
-            //set starting parameters
-            blipScript.InitializeBlip(m_BlipHunger, m_BlipLifespan);
+            float speed0 = Random.Range(m_MinSpeed, m_MaxSpeed);
+            float speed1 = Random.Range(m_MinSpeed, m_MaxSpeed);
+            float reproUrge0 = Random.Range(m_MinReproductiveUrge, m_MaxReproductiveUrge);
+            float reproUrge1 = Random.Range(m_MinReproductiveUrge, m_MaxReproductiveUrge);
+            float vision0 = Random.Range(m_MinVisionRange, m_MaxVisionRange);
+            float vision1 = Random.Range(m_MinVisionRange, m_MaxVisionRange);
+
+
+
+            //set Genetics
+            Genetics startGenetics = new Genetics(speed0, speed1, reproUrge0, reproUrge1, vision0, vision1);
+
+
+
+            blipScript.InitializeBlip(m_BlipMaxHunger, m_BlipLifespan, startGenetics);
         }
 
         //initialize food
@@ -82,25 +95,69 @@ public class SimulationScript : MonoBehaviour
         return m_StaticTimeStep;
     }
 
-    //update timer
-    [SerializeField]
-    [Header("Time Settings")]
-    private float m_TimeStep = 3f;
+    static public void QueueNewFoodSpawn()
+    {
+        ++m_QueuedFoods;
+    }
+
+    static public Vector3 GetClosestFood(Vector3 blipPos)
+    {
+        GameObject[] foods = GameObject.FindGameObjectsWithTag("Food");
+        if(foods.Length <= 0)
+            return new Vector2(float.MaxValue, float.MaxValue);
+        
+
+        float distance = float.MaxValue;
+        Vector3 closestFoodPos = new Vector2(float.MaxValue, float.MaxValue);
+        foreach (GameObject food in foods)
+        {
+            if(Vector3.Distance(food.transform.position, blipPos) < distance)
+            {
+                distance = Vector3.Distance(food.transform.position, blipPos);
+                closestFoodPos = food.transform.position;
+            }
+        }
+
+
+        return closestFoodPos;
+    }
+
+
+
+    ///++++++++++++++++++++
+    /// SIMULATION SETTINGS
+    ///++++++++++++++++++++
+
+    [Header("SIMULATION SETTINGS")]
+    public float m_TimeStep = 3f;
+    public float m_SetWorldSize = 100f;
+
     private float m_Timer;
     static private bool m_UpdateSimulation = false;
     static private float m_StaticTimeStep;
-
-    [Header("World Size")]
-    [SerializeField]
-    private float m_SetWorldSize = 100f;
     static Vector2 m_WorldSize;
+
 
     //BLIPS 
     [Header("Blip Settings")]
     public GameObject m_BlipPrefab;
     public int m_InitialNrBlips = 0;
+    [Space(10)]
     public int m_BlipLifespan = 10;
-    public float m_BlipHunger = 100f;
+    public float m_BlipMaxHunger = 100f;
+    [Space(10)]
+    public float m_MinSpeed;
+    public float m_MaxSpeed;
+    [Space(10)]
+    public float m_MinReproductiveUrge;
+    public float m_MaxReproductiveUrge;
+    [Space(10)]
+    public float m_MinVisionRange;
+    public float m_MaxVisionRange;
+
+
+
+
 
     //FOOD
     [Header("Food Settings")]
@@ -110,10 +167,7 @@ public class SimulationScript : MonoBehaviour
     static private int m_QueuedFoods;
 
 
-    static public void QueueNewFoodSpawn()
-    {
-        ++m_QueuedFoods;
-    }
+
 
     private void SpawnFood()
     {

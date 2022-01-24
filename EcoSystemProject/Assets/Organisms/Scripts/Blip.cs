@@ -10,16 +10,22 @@ public class Blip : BaseOrganism
 
     }
 
-    public void InitializeBlip(float maxHunger, int maxAge)
+    public void InitializeBlip(float maxHunger, int maxAge, Genetics genetics)
     {
-        m_Hunger = 0f;
+        m_Hunger = 0;
         m_MaxHunger = maxHunger;
 
         m_Age = 0;
         m_MaxAge = maxAge;
 
-        m_PreviousPos = gameObject.transform.position;
         m_TargetPos = gameObject.transform.position;
+        m_PreviousPos = gameObject.transform.position;
+
+        m_Genes = genetics;
+
+
+        CircleCollider2D col = GetComponentInChildren<CircleCollider2D>();
+        col.radius = m_Genes.GetVisionRange();
     }
 
 
@@ -58,32 +64,76 @@ public class Blip : BaseOrganism
     // Update is called once per frame
     protected override void UpdateTimeStep()
     {
-        //update stats
-        m_Hunger += m_MaxSpeed;
-        m_Age++;
+        //update state
+        m_State = OrganismState.LookingForFood;
 
-        if (m_Hunger >= m_MaxHunger || m_Age >= m_MaxAge)
+        //increment hunger
+        m_Hunger += (CalulateHunger() / m_MaxHunger);
+        m_Age++;
+        m_CurrentReproductiveUrge += 1f / m_MaxAge;
+
+        if (m_Hunger >= 1f)
         {
+            print("died of hunger");
+            Destroy(gameObject);
+        }
+        if (m_Age >= m_MaxAge)
+        {
+            print("died of old age");
             Destroy(gameObject);
         }
 
-        //JUST WANDERING AROUND
+        if (m_CurrentReproductiveUrge > m_Hunger)
+            m_State = OrganismState.LookingForMate;
+        else
+            m_State = OrganismState.LookingForFood;
 
-        Vector2 worldSize = SimulationScript.GetWorldSize();
-        //random movement within a cone relative to forward position
-        float addedAngle = Random.Range(-60f, 60f);
-        float currentAngle = gameObject.transform.rotation.eulerAngles.z;
 
-        Quaternion newRot = Quaternion.AngleAxis(currentAngle + addedAngle, Vector3.forward);
-        Vector3 movementDir = newRot * Vector3.right;
 
-        m_TargetPos = gameObject.transform.position + (movementDir * m_MaxSpeed);
+
+        //Handle Movement
+        Vector3 movementDir = new Vector3();
+
+
+        switch (m_State)
+        {
+            case OrganismState.LookingForFood:
+                if (Vector3.Distance(SimulationScript.GetClosestFood(gameObject.transform.position), gameObject.transform.position) < m_Genes.GetVisionRange())
+                {
+                    //go to food
+                    movementDir = SimulationScript.GetClosestFood(gameObject.transform.position) - gameObject.transform.position;
+                    if (movementDir.magnitude > m_Genes.GetMaxSpeed())
+                    {
+                        movementDir = movementDir.normalized * m_Genes.GetMaxSpeed();
+                    }
+
+                }
+                else
+                {
+                    //no food in sight
+                    movementDir = Wander(60f);
+                    movementDir = movementDir.normalized * m_Genes.GetMaxSpeed();
+                }
+                break;
+
+            case OrganismState.LookingForMate:
+                print("looking for sexy time");
+                break;
+
+            default:
+                break;
+        }
+
+
+       
+
+
+        m_TargetPos = gameObject.transform.position + movementDir;
         m_PreviousPos = gameObject.transform.position;
-        m_PosInterpolationTValue = 0f;
-
 
 
         //KEEP THE BLIPS IN THE PLAY FIELD
+        Vector2 worldSize = SimulationScript.GetWorldSize();
         //x
         if (m_TargetPos.x < -worldSize.x)
         {
@@ -112,5 +162,27 @@ public class Blip : BaseOrganism
         float defAngle = Mathf.Atan2(movementDir.y, movementDir.x) * Mathf.Rad2Deg;
         gameObject.transform.rotation = Quaternion.AngleAxis(defAngle, Vector3.forward);
 
+
+
+        m_PosInterpolationTValue = 0f;
+    }
+
+
+
+    private Vector2 Wander(float angle)
+    {
+        //no food in sight
+        float addedAngle = Random.Range(-angle, angle);
+        float currentAngle = gameObject.transform.rotation.eulerAngles.z;
+
+        Quaternion newRot = Quaternion.AngleAxis(currentAngle + addedAngle, Vector3.forward);
+        Vector3 movementDir = newRot * Vector3.right;
+        return movementDir;
+    }
+
+    private float CalulateHunger()
+    {
+        //todo: calculate energy loss (( maxspeed^1.2 + (visionrange/2)^1.2 ) / 2)
+        return m_Genes.GetMaxSpeed();
     }
 }

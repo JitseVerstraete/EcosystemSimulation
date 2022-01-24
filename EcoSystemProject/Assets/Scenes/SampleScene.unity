@@ -140,14 +140,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a095f6dc1bc5fec45b99017b81830b30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_TimeStep: 0.01
-  m_SetWorldSize: 50
+  m_TimeStep: 0.1
+  m_SetWorldSize: 20
   m_BlipPrefab: {fileID: 5731147864839474513, guid: 3d5540021d87d224baeae94745275966, type: 3}
-  m_InitialNrBlips: 100
-  m_BlipLifespan: 9999
-  m_BlipHunger: 100
+  m_InitialNrBlips: 10
+  m_BlipLifespan: 100
+  m_BlipMaxHunger: 100
+  m_MinSpeed: 1
+  m_MaxSpeed: 2
+  m_MinReproductiveUrge: 0
+  m_MaxReproductiveUrge: 0
+  m_MinVisionRange: 0
+  m_MaxVisionRange: 0
   m_FoodPrefab: {fileID: 8736920607726299253, guid: 65ce9c9f1ff31394db8d54eeeced501f, type: 3}
-  m_AmountOfFood: 300
+  m_AmountOfFood: 5
 --- !u!1 &206917990
 GameObject:
   m_ObjectHideFlags: 0
@@ -273,7 +279,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8272044392376571952, guid: 5e8b9c61bdd534b419f57223927586d3, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 5.3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8272044392376571952, guid: 5e8b9c61bdd534b419f57223927586d3, type: 3}
       propertyPath: m_LocalPosition.z
