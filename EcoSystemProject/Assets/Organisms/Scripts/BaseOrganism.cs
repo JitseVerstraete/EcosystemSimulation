@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
 public enum OrganismState
 {
     LookingForFood = 0,
@@ -10,7 +12,6 @@ public enum OrganismState
 
 public class Genetics
 {
-
     public Genetics()
     {
         m_MaxSpeedGene[0] = 0f;
@@ -53,9 +54,9 @@ public class Genetics
         //maxSpeed mutations
         for (int i = 0; i < 2; ++i)
         {
-            if (Random.Range(0f, 1f) < SimulationScript.GetMutationChance())
+            if (Random.Range(0f, 1f) < SimulationScript.Instance.GetMutationChance())
             {
-                float mutationAmount = childGenetics.m_MaxSpeedGene[i] * SimulationScript.GetMutationAmount();
+                float mutationAmount = childGenetics.m_MaxSpeedGene[i] * SimulationScript.Instance.GetMutationAmount();
                 if (Random.Range(0, 2) == 0)
                     childGenetics.m_MaxSpeedGene[i] += mutationAmount;
                 else
@@ -67,9 +68,9 @@ public class Genetics
         //visionRange mutations
         for (int i = 0; i < 2; ++i)
         {
-            if (Random.Range(0f, 1f) < SimulationScript.GetMutationChance())
+            if (Random.Range(0f, 1f) < SimulationScript.Instance.GetMutationChance())
             {
-                float mutationAmount = childGenetics.m_VisionRangeGene[i] * SimulationScript.GetMutationAmount();
+                float mutationAmount = childGenetics.m_VisionRangeGene[i] * SimulationScript.Instance.GetMutationAmount();
                 if (Random.Range(0, 2) == 0)
                     childGenetics.m_VisionRangeGene[i] += mutationAmount;
                 else
@@ -106,16 +107,15 @@ public class BaseOrganism : MonoBehaviour
     protected virtual void UpdateTimeStep()
     { }
 
-    //+++++++++
+    //========
     //STATS
-    //+++++++++
+    //========
 
     //DEAD?
     protected bool m_Dead = false;
 
     //HUNGER
     protected float m_Hunger; //value between 0 and 1, increased with caluculatedHunger / maxhunger every timestep
-
 
     //REPRODUCTIVE URGE
     protected float m_CurrentReproductiveUrge; //value between 0 and 1 that is increase with 1/maxAge every timestep.
@@ -124,12 +124,10 @@ public class BaseOrganism : MonoBehaviour
     //LIFETIME
     protected int m_Age; //increases by 1 every timestep
 
-
     //movement animation things
     protected Vector3 m_TargetPos;
     protected Vector3 m_PreviousPos;
     protected float m_PosInterpolationTValue = 0f;
-
 
     protected Genetics m_Genes;
     protected OrganismState m_State;

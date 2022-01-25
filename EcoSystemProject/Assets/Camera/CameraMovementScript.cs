@@ -8,7 +8,7 @@ public class CameraMovementScript : MonoBehaviour
     void Start()
     {
 
-        m_WorldSize = SimulationScript.GetWorldSize();
+        m_WorldSize = SimulationScript.Instance.GetWorldSize();
         m_MaxZoomSize = m_WorldSize.y;
         Camera.main.orthographicSize = m_MaxZoomSize;
     }

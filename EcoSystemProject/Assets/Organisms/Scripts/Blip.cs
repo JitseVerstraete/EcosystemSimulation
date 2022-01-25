@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
+
 public class Blip : BaseOrganism
 {
     Blip m_Partner = null;
@@ -46,24 +49,24 @@ public class Blip : BaseOrganism
         m_Partner = null;
         m_State = OrganismState.LookingForFood;
         m_MatingCounter = 0;
-        m_Hunger += SimulationScript.GetMatingCost();
-        m_MatingCooldown = SimulationScript.GetMatingCooldown();
+        m_Hunger += SimulationScript.Instance.GetMatingCost();
+        m_MatingCooldown = SimulationScript.Instance.GetMatingCooldown();
     }
 
 
     private void Update()
     {
-        if (SimulationScript.UpdateSimulation())
+        if (SimulationScript.Instance.UpdateSimulation())
         {
             UpdateTimeStep();
         }
 
 
         //interpolate position between previous position and target position
-        if (SimulationScript.GetTimeStep() == 0)
+        if (SimulationScript.Instance.GetTimeStep() == 0)
             m_PosInterpolationTValue = 1f;
 
-        m_PosInterpolationTValue += (Time.deltaTime / SimulationScript.GetTimeStep()) * 1.3333f;
+        m_PosInterpolationTValue += (Time.deltaTime / SimulationScript.Instance.GetTimeStep()) * 1.3333f;
         gameObject.transform.position = Vector3.Lerp(m_PreviousPos, m_TargetPos, m_PosInterpolationTValue);
     }
 
@@ -72,14 +75,17 @@ public class Blip : BaseOrganism
     {
         if (collision.gameObject.tag == "Food")
         {
-            
+            /*
             //Blip is full again :))
-            m_Hunger -= SimulationScript.GetFoodEffectiveness();
-            m_Hunger = Mathf.Clamp(m_Hunger, 0f, 2f);
+            m_Hunger -= SimulationScript.Instance.GetFoodEffectiveness();
+            m_Hunger = Mathf.Clamp(m_Hunger, 0f, 1.01f);
 
             //Delete food
             Destroy(collision.gameObject);
-            SimulationScript.QueueNewFoodSpawn();
+
+             */
+
+
 
         }
     }
@@ -90,9 +96,9 @@ public class Blip : BaseOrganism
     {
 
         //increment hunger
-        m_Hunger += (CalulateHunger() / SimulationScript.GetBlipMaxHunger());
+        m_Hunger += (CalulateHunger() / SimulationScript.Instance.GetBlipMaxHunger());
         m_Age++;
-        m_CurrentReproductiveUrge += 1f / SimulationScript.GetBlipLifeSpan();
+        m_CurrentReproductiveUrge += 1f / SimulationScript.Instance.GetBlipLifeSpan();
         m_MatingCooldown--;
 
 
@@ -102,28 +108,28 @@ public class Blip : BaseOrganism
             print("died of hunger");
             Destroy(gameObject);
         }
-        if (m_Age >= SimulationScript.GetBlipLifeSpan())
+        if (m_Age >= SimulationScript.Instance.GetBlipLifeSpan())
         {
             print("died of old age");
             Destroy(gameObject);
         }
 
         //update if blip found a partner
-        if(m_Partner != null)
+        if (m_Partner != null)
         {
             m_PreviousPos = gameObject.transform.position;
             m_TargetPos = gameObject.transform.position;
             m_MatingCounter++;
 
-            if (m_MatingCounter >= SimulationScript.GetBlipMatingTime())
+            if (m_MatingCounter >= SimulationScript.Instance.GetBlipMatingTime())
             {
                 //create a new blip
                 GameObject go = Instantiate(gameObject);
+                go.name = "BLIP";
                 go.transform.position = Vector3.Lerp(gameObject.transform.position, m_Partner.gameObject.transform.position, 0.5f);
                 Blip b = go.GetComponent<Blip>();
 
                 b.InitializeBlip(Genetics.Inherit(m_Genes, m_Partner.m_Genes));
-                print("NEW BLIP BORN");
 
                 m_Partner.DoneMating();
                 DoneMating();
@@ -149,14 +155,36 @@ public class Blip : BaseOrganism
 
         switch (m_State)
         {
+            //MOVEMENT WHEN LOOKING FOR FOOD
             case OrganismState.LookingForFood:
-                if (Vector3.Distance(SimulationScript.GetClosestFood(gameObject.transform.position), gameObject.transform.position) < m_Genes.GetVisionRange())
+                Food closestFood = SimulationScript.Instance.GetClosestFood(gameObject.transform.position);
+                float FoodDistance;
+
+                if (closestFood == null)
+                    FoodDistance = float.MaxValue;
+                else
+                    FoodDistance = Vector3.Distance(closestFood.transform.position, gameObject.transform.position);
+
+                if (FoodDistance < m_Genes.GetVisionRange())
                 {
                     //go to food
-                    movementDir = SimulationScript.GetClosestFood(gameObject.transform.position) - gameObject.transform.position;
+                    movementDir = closestFood.transform.position - gameObject.transform.position;
                     if (movementDir.magnitude > m_Genes.GetMaxSpeed())
                     {
                         movementDir = movementDir.normalized * m_Genes.GetMaxSpeed();
+                    }
+
+                    //if close enough to food, destroy it
+
+                    //Blip is full again :))
+                    if (FoodDistance < 1f && !closestFood.IsEaten())
+                    {
+                        m_Hunger -= SimulationScript.Instance.GetFoodEffectiveness();
+                        m_Hunger = Mathf.Clamp(m_Hunger, 0f, 1.01f);
+
+                        //Set food as eaten and destroy the food after
+                        closestFood.EatFood();
+                        Destroy(closestFood.gameObject);
                     }
 
                 }
@@ -168,19 +196,20 @@ public class Blip : BaseOrganism
                 }
                 break;
 
+            //MOVEMENT WHEN LOOKING FOR MATE
             case OrganismState.LookingForMate:
-                Blip closestBlip = SimulationScript.GetClosestPartner(gameObject.transform.position);
-                float distance;
+                Blip closestBlip = SimulationScript.Instance.GetClosestPartner(gameObject.transform.position);
+                float BlipDistance;
 
                 if (closestBlip == null)
-                    distance = float.MaxValue;
+                    BlipDistance = float.MaxValue;
                 else
-                    distance = Vector3.Distance(closestBlip.gameObject.transform.position, gameObject.transform.position);
-                   
-                if (distance < m_Genes.GetVisionRange())
+                    BlipDistance = Vector3.Distance(closestBlip.gameObject.transform.position, gameObject.transform.position);
+
+                if (BlipDistance < m_Genes.GetVisionRange())
                 {
                     //go to partner
-                    movementDir = SimulationScript.GetClosestPartner(gameObject.transform.position).gameObject.transform.position - gameObject.transform.position;
+                    movementDir = closestBlip.gameObject.transform.position - gameObject.transform.position;
                     if (movementDir.magnitude > m_Genes.GetMaxSpeed())
                     {
                         movementDir = movementDir.normalized * m_Genes.GetMaxSpeed();
@@ -191,7 +220,7 @@ public class Blip : BaseOrganism
                     }
 
                     //if the blip reached the potential mate, set them as eachothers partner
-                    if(distance < 1f)
+                    if (BlipDistance < 1f)
                     {
                         if (AvailableForMating() && closestBlip.AvailableForMating())
                         {
@@ -200,14 +229,14 @@ public class Blip : BaseOrganism
                             closestBlip.SetPartner(this);
                         }
                     }
-                    
+
                 }
                 else
                 {
                     //no partner in sight
                     movementDir = Wander(60f);
                     movementDir = movementDir.normalized * m_Genes.GetMaxSpeed();
-                    
+
                 }
                 break;
 
@@ -216,7 +245,7 @@ public class Blip : BaseOrganism
         }
 
 
-       
+
 
 
         m_TargetPos = gameObject.transform.position + movementDir;
@@ -224,7 +253,7 @@ public class Blip : BaseOrganism
 
 
         //KEEP THE BLIPS IN THE PLAY FIELD
-        Vector2 worldSize = SimulationScript.GetWorldSize();
+        Vector2 worldSize = SimulationScript.Instance.GetWorldSize();
         //x
         if (m_TargetPos.x < -worldSize.x)
         {

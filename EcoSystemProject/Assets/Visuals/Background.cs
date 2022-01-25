@@ -9,7 +9,7 @@ public class Background : MonoBehaviour
     {
         m_SpriteRenderer = gameObject.GetComponent<SpriteRenderer>();
 
-        Vector2 worldSize = SimulationScript.GetWorldSize();
+        Vector2 worldSize = SimulationScript.Instance.GetWorldSize();
 
         m_Sprite = Sprite.Create(m_Texture, new Rect(0f, 0f, m_Texture.width, m_Texture.height), new Vector2(0f, 0f), 64, 0, SpriteMeshType.FullRect);
         
