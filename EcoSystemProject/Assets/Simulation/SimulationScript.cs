@@ -174,7 +174,7 @@ public class SimulationScript : MonoBehaviour
     [Range(0f,1f)]
     public float m_SetMutationChance;
     static private float m_MutationChance;
-    [Range(0f,1f)]
+    [Range(0f, 0.1f)]
     public float m_SetMutationAmount;
     static private float m_MutationAmount;
 
@@ -192,7 +192,6 @@ public class SimulationScript : MonoBehaviour
     public float m_MinSpeed;
     public float m_MaxSpeed;
     [Space(10)]
-
     public int m_SetBlipMatingTime;
     static int m_BlipMatingTime;
     [Range(0f, 1f)]

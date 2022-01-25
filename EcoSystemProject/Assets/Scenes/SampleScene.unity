@@ -142,8 +142,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_TimeStep: 1
   m_SetWorldSize: 20
+  m_SetMutationChance: 1
+  m_SetMutationAmount: 0.1
   m_BlipPrefab: {fileID: 5731147864839474513, guid: 3d5540021d87d224baeae94745275966, type: 3}
-  m_InitialNrBlips: 2
+  m_InitialNrBlips: 12
   m_SetBlipLifespan: 100
   m_SetBlipMaxHunger: 100
   m_MinSpeed: 1
@@ -151,8 +153,8 @@ MonoBehaviour:
   m_SetBlipMatingTime: 5
   m_SetMatingCost: 0.2
   m_SetMatingCooldown: 0
-  m_MinVisionRange: 100
-  m_MaxVisionRange: 100
+  m_MinVisionRange: 7
+  m_MaxVisionRange: 10
   m_FoodPrefab: {fileID: 8736920607726299253, guid: 65ce9c9f1ff31394db8d54eeeced501f, type: 3}
   m_AmountOfFood: 10
   m_SetFoodEffectiveness: 0.5

@@ -72,6 +72,7 @@ public class Blip : BaseOrganism
     {
         if (collision.gameObject.tag == "Food")
         {
+            
             //Blip is full again :))
             m_Hunger -= SimulationScript.GetFoodEffectiveness();
             m_Hunger = Mathf.Clamp(m_Hunger, 0f, 2f);
@@ -93,7 +94,6 @@ public class Blip : BaseOrganism
         m_Age++;
         m_CurrentReproductiveUrge += 1f / SimulationScript.GetBlipLifeSpan();
         m_MatingCooldown--;
-        print(m_CurrentReproductiveUrge);
 
 
 
@@ -272,7 +272,12 @@ public class Blip : BaseOrganism
 
     private float CalulateHunger()
     {
+        const float movementSpeedWeight = 0.7f;
+        const float visionRangeWeight = 0.3f;
         //todo: calculate energy loss (( maxspeed^1.2 + (visionrange/2)^1.2 ) / 2)
-        return m_Genes.GetMaxSpeed();
+        float movementSpeedCost = movementSpeedWeight * Mathf.Pow(m_Genes.GetMaxSpeed(), 1.1f);
+        float visionRangeCost = visionRangeWeight * Mathf.Pow(m_Genes.GetVisionRange() / 2, 1.1f);
+
+        return movementSpeedCost + visionRangeCost;
     }
 }

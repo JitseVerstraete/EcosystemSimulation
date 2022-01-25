@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum OrganismState
-{ 
+{
     LookingForFood = 0,
     LookingForMate = 1
 }
@@ -22,9 +22,9 @@ public class Genetics
 
     public Genetics(float speed0, float speed1, float vision0, float vision1)
     {
-        m_MaxSpeedGene[0] = speed1;
+        m_MaxSpeedGene[0] = speed0;
         m_MaxSpeedGene[1] = speed1;
-       
+
         m_VisionRangeGene[0] = vision0;
         m_VisionRangeGene[1] = vision1;
     }
@@ -49,16 +49,33 @@ public class Genetics
 
         childGenetics.m_VisionRangeGene[0] = parent1.m_VisionRangeGene[Random.Range(0, 2)];
         childGenetics.m_VisionRangeGene[1] = parent2.m_VisionRangeGene[Random.Range(0, 2)];
-
-        //TODO: ADD SMALL MUTATION CHANCE
-        if(Random.Range(0f, 1f) < SimulationScript.GetMutationChance())
+        
+        //maxSpeed mutations
+        for (int i = 0; i < 2; ++i)
         {
-            
+            if (Random.Range(0f, 1f) < SimulationScript.GetMutationChance())
+            {
+                float mutationAmount = childGenetics.m_MaxSpeedGene[i] * SimulationScript.GetMutationAmount();
+                if (Random.Range(0, 2) == 0)
+                    childGenetics.m_MaxSpeedGene[i] += mutationAmount;
+                else
+                    childGenetics.m_MaxSpeedGene[i] -= mutationAmount;
+
+            }
         }
 
-        if(Random.Range(0f, 1f) < SimulationScript.GetMutationChance())
+        //visionRange mutations
+        for (int i = 0; i < 2; ++i)
         {
+            if (Random.Range(0f, 1f) < SimulationScript.GetMutationChance())
+            {
+                float mutationAmount = childGenetics.m_VisionRangeGene[i] * SimulationScript.GetMutationAmount();
+                if (Random.Range(0, 2) == 0)
+                    childGenetics.m_VisionRangeGene[i] += mutationAmount;
+                else
+                    childGenetics.m_VisionRangeGene[i] -= mutationAmount;
 
+            }
         }
 
 
@@ -79,11 +96,11 @@ public class BaseOrganism : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     public bool IsDead() => m_Dead;
-  
+
 
     //make a custom Update that Updates the organism for one time step
     protected virtual void UpdateTimeStep()
@@ -98,7 +115,7 @@ public class BaseOrganism : MonoBehaviour
 
     //HUNGER
     protected float m_Hunger; //value between 0 and 1, increased with caluculatedHunger / maxhunger every timestep
-    
+
 
     //REPRODUCTIVE URGE
     protected float m_CurrentReproductiveUrge; //value between 0 and 1 that is increase with 1/maxAge every timestep.
