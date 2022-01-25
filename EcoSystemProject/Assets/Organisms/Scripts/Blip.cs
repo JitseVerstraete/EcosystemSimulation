@@ -17,10 +17,10 @@ public class Blip : BaseOrganism
 
     }
 
-    public void InitializeBlip(Genetics genetics)
+    public void InitializeBlip(Genetics genetics, int startAge = 0)
     {
         m_Hunger = 0.5f;
-        m_Age = 0;
+        m_Age = startAge;
 
         m_TargetPos = gameObject.transform.position;
         m_PreviousPos = gameObject.transform.position;

@@ -79,7 +79,7 @@ public class SimulationScript : MonoBehaviour
 
 
 
-            blipScript.InitializeBlip(startGenetics);
+            blipScript.InitializeBlip(startGenetics, Random.Range(0, m_BlipLifeSpan / 2));
         }
 
         //initialize food
@@ -126,10 +126,8 @@ public class SimulationScript : MonoBehaviour
 
     private void OnDestroy()
     {
-        //what to do at the end of the simulation
-
         //write data to file
-        WriteDataToFile("fileName");
+        WriteDataToFile(m_FilePath, m_SimulationName);
     }
 
     public bool UpdateSimulation() => m_UpdateSimulation;
@@ -190,7 +188,7 @@ public class SimulationScript : MonoBehaviour
     ///++++++++++++++++++++
 
     [Header("Simulation Settings")]
-
+    public string m_SimulationName;
     public float m_SetWorldSize = 100f;
     Vector2 m_WorldSize;
 
@@ -259,6 +257,7 @@ public class SimulationScript : MonoBehaviour
 
 
     //DATA RECORDING
+    const string m_FilePath = "../SimulationData/DataFiles/";
     List<DataRecord> m_DataRecords = new List<DataRecord>();
     
 
@@ -278,8 +277,24 @@ public class SimulationScript : MonoBehaviour
         m_DataRecords.Add(new DataRecord(m_CurrentTimeStep, (uint)m_Blips.Length));
     }
 
-    private void WriteDataToFile(string fileName)
+    private void WriteDataToFile(string path, string fileName)
     {
-        
+     
+
+        //file content
+        string fileContent = "";
+
+        fileContent += "TimeStep, Blip Population\n";
+
+        foreach(DataRecord record in m_DataRecords)
+        {
+            fileContent += record.timeStep.ToString() + "," + record.nrBlips.ToString() + "\n"; ;
+        }
+
+
+        //filename
+        string file = path + fileName + ".txt";
+
+        File.WriteAllText(file, fileContent);
     }
 }

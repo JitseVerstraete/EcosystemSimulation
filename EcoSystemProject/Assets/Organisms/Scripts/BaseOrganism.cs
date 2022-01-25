@@ -101,6 +101,7 @@ public class BaseOrganism : MonoBehaviour
     }
 
     public bool IsDead() => m_Dead;
+    public Genetics GetGenes() => m_Genes;
 
 
     //make a custom Update that Updates the organism for one time step
