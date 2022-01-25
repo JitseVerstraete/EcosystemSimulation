@@ -17,6 +17,11 @@ public class Blip : BaseOrganism
 
     }
 
+    private void OnDisable()
+    {
+        this.enabled = true;
+    }
+
     public void InitializeBlip(Genetics genetics, int startAge = 0)
     {
         m_Hunger = 0.5f;

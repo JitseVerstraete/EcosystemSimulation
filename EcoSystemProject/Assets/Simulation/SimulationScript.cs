@@ -6,15 +6,19 @@ using System.IO;
 public struct DataRecord
 {
 
-    public DataRecord(uint tStep, uint blips)
+    public DataRecord(uint tStep, uint blips, float blipSpeed, float blipVision)
     {
         timeStep = tStep;
         nrBlips = blips;
+        blipAvgSpeed = blipSpeed;
+        blipAvgVision = blipVision;
     }
 
 
-    public uint timeStep;    
+    public uint timeStep;
     public uint nrBlips;
+    public float blipAvgSpeed;
+    public float blipAvgVision;
 
 }
 
@@ -259,7 +263,7 @@ public class SimulationScript : MonoBehaviour
     //DATA RECORDING
     const string m_FilePath = "../SimulationData/DataFiles/";
     List<DataRecord> m_DataRecords = new List<DataRecord>();
-    
+
 
 
 
@@ -274,21 +278,21 @@ public class SimulationScript : MonoBehaviour
 
     private void RecordData()
     {
-        m_DataRecords.Add(new DataRecord(m_CurrentTimeStep, (uint)m_Blips.Length));
+        m_DataRecords.Add(new DataRecord(m_CurrentTimeStep, (uint)m_Blips.Length, AverageBlipSpeed(), AverageBlipVision()));
     }
 
     private void WriteDataToFile(string path, string fileName)
     {
-     
+
 
         //file content
         string fileContent = "";
 
-        fileContent += "TimeStep, Blip Population\n";
+        fileContent += "TimeStep\t Blip Population\t Blip Speed\t Blip Vision\n";
 
-        foreach(DataRecord record in m_DataRecords)
+        foreach (DataRecord record in m_DataRecords)
         {
-            fileContent += record.timeStep.ToString() + "," + record.nrBlips.ToString() + "\n"; ;
+            fileContent += record.timeStep.ToString() + "\t" + record.nrBlips.ToString() + "\t" + record.blipAvgSpeed.ToString(System.Globalization.CultureInfo.CreateSpecificCulture("fr-FR")) + "\t" + record.blipAvgVision.ToString(System.Globalization.CultureInfo.CreateSpecificCulture("fr-FR")) + "\n"; ;
         }
 
 
@@ -297,4 +301,37 @@ public class SimulationScript : MonoBehaviour
 
         File.WriteAllText(file, fileContent);
     }
+
+
+    //blip average speed
+    private float AverageBlipSpeed()
+    {
+        float avgSpeed = 0f;
+        foreach(Blip blip in m_Blips)
+        {
+            avgSpeed += blip.GetGenes().GetMaxSpeed();
+        }
+
+        avgSpeed /= m_Blips.Length;
+        return avgSpeed;
+    }
+
+
+
+
+    //blip average vision range
+    private float AverageBlipVision()
+    {
+        float avgVision = 0f;
+        foreach (Blip blip in m_Blips)
+        {
+            avgVision += blip.GetGenes().GetMaxSpeed();
+        }
+
+        avgVision /= m_Blips.Length;
+        return avgVision;
+    }
+
+
+
 }
