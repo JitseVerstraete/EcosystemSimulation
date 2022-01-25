@@ -4,28 +4,50 @@ using UnityEngine;
 
 public class Blip : BaseOrganism
 {
+    Blip m_Partner = null;
+    int m_MatingCounter = 0;
+
+
     // Start is called before the first frame update
     void Start()
     {
 
     }
 
-    public void InitializeBlip(float maxHunger, int maxAge, Genetics genetics)
+    public void InitializeBlip(Genetics genetics)
     {
-        m_Hunger = 0;
-        m_MaxHunger = maxHunger;
-
+        m_Hunger = 0.5f;
         m_Age = 0;
-        m_MaxAge = maxAge;
 
         m_TargetPos = gameObject.transform.position;
         m_PreviousPos = gameObject.transform.position;
 
         m_Genes = genetics;
 
+        m_MatingCooldown = 0;
 
         CircleCollider2D col = GetComponentInChildren<CircleCollider2D>();
         col.radius = m_Genes.GetVisionRange();
+    }
+
+    public bool AvailableForMating()
+    {
+        return m_State == OrganismState.LookingForMate && m_Partner == null;
+    }
+
+    public void SetPartner(Blip partner)
+    {
+        m_Partner = partner;
+    }
+
+    public void DoneMating()
+    {
+        m_CurrentReproductiveUrge = 0f;
+        m_Partner = null;
+        m_State = OrganismState.LookingForFood;
+        m_MatingCounter = 0;
+        m_Hunger += SimulationScript.GetMatingCost();
+        m_MatingCooldown = SimulationScript.GetMatingCooldown();
     }
 
 
@@ -46,13 +68,13 @@ public class Blip : BaseOrganism
     }
 
 
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "Food")
         {
             //Blip is full again :))
-            m_Hunger = 0;
+            m_Hunger -= SimulationScript.GetFoodEffectiveness();
+            m_Hunger = Mathf.Clamp(m_Hunger, 0f, 2f);
 
             //Delete food
             Destroy(collision.gameObject);
@@ -61,29 +83,59 @@ public class Blip : BaseOrganism
         }
     }
 
+
     // Update is called once per frame
     protected override void UpdateTimeStep()
     {
-        //update state
-        m_State = OrganismState.LookingForFood;
 
         //increment hunger
-        m_Hunger += (CalulateHunger() / m_MaxHunger);
+        m_Hunger += (CalulateHunger() / SimulationScript.GetBlipMaxHunger());
         m_Age++;
-        m_CurrentReproductiveUrge += 1f / m_MaxAge;
+        m_CurrentReproductiveUrge += 1f / SimulationScript.GetBlipLifeSpan();
+        m_MatingCooldown--;
+        print(m_CurrentReproductiveUrge);
+
+
 
         if (m_Hunger >= 1f)
         {
             print("died of hunger");
             Destroy(gameObject);
         }
-        if (m_Age >= m_MaxAge)
+        if (m_Age >= SimulationScript.GetBlipLifeSpan())
         {
             print("died of old age");
             Destroy(gameObject);
         }
 
-        if (m_CurrentReproductiveUrge > m_Hunger)
+        //update if blip found a partner
+        if(m_Partner != null)
+        {
+            m_PreviousPos = gameObject.transform.position;
+            m_TargetPos = gameObject.transform.position;
+            m_MatingCounter++;
+
+            if (m_MatingCounter >= SimulationScript.GetBlipMatingTime())
+            {
+                //create a new blip
+                GameObject go = Instantiate(gameObject);
+                go.transform.position = Vector3.Lerp(gameObject.transform.position, m_Partner.gameObject.transform.position, 0.5f);
+                Blip b = go.GetComponent<Blip>();
+
+                b.InitializeBlip(Genetics.Inherit(m_Genes, m_Partner.m_Genes));
+                print("NEW BLIP BORN");
+
+                m_Partner.DoneMating();
+                DoneMating();
+
+
+            }
+            return;
+        }
+
+
+        //update state
+        if (m_CurrentReproductiveUrge > m_Hunger && m_MatingCooldown <= 0)
             m_State = OrganismState.LookingForMate;
         else
             m_State = OrganismState.LookingForFood;
@@ -117,7 +169,46 @@ public class Blip : BaseOrganism
                 break;
 
             case OrganismState.LookingForMate:
-                print("looking for sexy time");
+                Blip closestBlip = SimulationScript.GetClosestPartner(gameObject.transform.position);
+                float distance;
+
+                if (closestBlip == null)
+                    distance = float.MaxValue;
+                else
+                    distance = Vector3.Distance(closestBlip.gameObject.transform.position, gameObject.transform.position);
+                   
+                if (distance < m_Genes.GetVisionRange())
+                {
+                    //go to partner
+                    movementDir = SimulationScript.GetClosestPartner(gameObject.transform.position).gameObject.transform.position - gameObject.transform.position;
+                    if (movementDir.magnitude > m_Genes.GetMaxSpeed())
+                    {
+                        movementDir = movementDir.normalized * m_Genes.GetMaxSpeed();
+                    }
+                    else
+                    {
+                        movementDir /= 2;
+                    }
+
+                    //if the blip reached the potential mate, set them as eachothers partner
+                    if(distance < 1f)
+                    {
+                        if (AvailableForMating() && closestBlip.AvailableForMating())
+                        {
+                            //set each other as partners
+                            SetPartner(closestBlip);
+                            closestBlip.SetPartner(this);
+                        }
+                    }
+                    
+                }
+                else
+                {
+                    //no partner in sight
+                    movementDir = Wander(60f);
+                    movementDir = movementDir.normalized * m_Genes.GetMaxSpeed();
+                    
+                }
                 break;
 
             default:
@@ -145,7 +236,6 @@ public class Blip : BaseOrganism
             m_TargetPos -= new Vector3((m_TargetPos.x - worldSize.x) * 2, 0f, 0f);
             movementDir.x = -movementDir.x;
         }
-
         //y
         if (m_TargetPos.y < -worldSize.y)
         {

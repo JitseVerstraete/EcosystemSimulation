@@ -5,11 +5,12 @@ TagManager:
   serializedVersion: 2
   tags:
   - Food
+  - Blip
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - IgnoreAll
   - Water
   - UI
   - 
