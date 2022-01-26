@@ -28,9 +28,11 @@ There are two different organisms, Blips and Predators. Blips eat static food in
 ## Simulations
 ### First Simulation
 I started with a baseline simulation to compare other simulations agains. A Simulation with only blips. I filled the world with a limited amount of food. These were the results of the simulation: <br/>
-![alt text](/ReadmeImages/FirstSimulation.png)
+![alt text](/ReadmeImages/Sim.gif)
 
 ### Food Abundance Simulation
+![alt text](/ReadmeImages/FoodAbundance.png)
+
 
 ### Predation Simulation
 
