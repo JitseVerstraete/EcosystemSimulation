@@ -140,39 +140,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a095f6dc1bc5fec45b99017b81830b30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_SimulationName: FirstSimulation
+  m_SimulationName: test
   m_SetWorldSize: 30
   m_TimeStep: 0.078
   m_BlipMutationChance: 1
   m_BlipMutationAmount: 0.1
-  m_PredatorMutationChance: 0.913
+  m_PredatorMutationChance: 1
   m_PredatorMutationAmount: 0.1
   m_BlipPrefab: {fileID: 5731147864839474513, guid: 3d5540021d87d224baeae94745275966, type: 3}
-  m_InitialNrBlips: 50
+  m_InitialNrBlips: 100
   m_BlipLifeSpan: 200
-  m_BlipMaxHunger: 200
-  m_BlipMatingTime: 3
+  m_BlipMaxHunger: 150
+  m_BlipMatingTime: 2
   m_BlipMatingCost: 0.3
-  m_BlipMatingCooldown: 5
+  m_BlipMatingCooldown: 3
   m_BlipMinSpeed: 0.5
   m_BlipMaxSpeed: 2.5
   m_BlipMinVisionRange: 3
   m_BlipMaxVisionRange: 9
   m_PredatorPrefab: {fileID: 5621318391876599448, guid: 549f2f4217b56384cbf7113d3c658c43, type: 3}
-  m_InitialNrPredators: 0
+  m_InitialNrPredators: 10
   m_PredatorLifeSpan: 300
   m_PredatorMaxHunger: 500
-  m_PredatorMatingTime: 60
+  m_PredatorMatingTime: 50
   m_PredatorMatingCost: 0.2
   m_PredatorMatingCooldown: 10
-  m_PredatorMinSpeed: 2
-  m_PredatorMaxSpeed: 3
-  m_PredatorMinVisionRange: 10
+  m_PredatorMinSpeed: 0.5
+  m_PredatorMaxSpeed: 4
+  m_PredatorMinVisionRange: 6
   m_PredatorMaxVisionRange: 12
   m_FoodPrefab: {fileID: 8736920607726299253, guid: 65ce9c9f1ff31394db8d54eeeced501f, type: 3}
-  m_AmountOfFood: 30
-  m_BlipFoodEffectiveness: 0.406
-  m_PredatorFoodEffectiveness: 0.51
+  m_AmountOfFood: 60
+  m_BlipFoodEffectiveness: 0.55
+  m_PredatorFoodEffectiveness: 0.3
 --- !u!1 &206917990
 GameObject:
   m_ObjectHideFlags: 0
