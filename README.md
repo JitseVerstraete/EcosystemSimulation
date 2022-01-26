@@ -20,12 +20,19 @@ This simulation will work by updating all the organisms in the virtual space onc
 - Reproductive Urge: value between [0, 1]. R.U rises by 1 / MaxAge every time step. If R.U is bigger than hunger, the organism will look for a mate, else it will look for food. While looking for a mate, they will wander around until they find anther organism that is also looking for a mate.
 - Age: value between [0, maxAge]. Age rises by 1 every time step. If an organism's age reaches maxAge, it dies.
 <br/>
-
-
 Every organism has two versions (aka alleles) of every gene, one from the "father" and one from the "mother". The actual value used to to set the maximum speed and vision range is the avergage of these two alleles. When reproducing, each parent give one of their alleles for each gen to the child. On top of this, every allele has a random chance to mutate which adds/substracts a small amount to/from the allele.
+<br/>
+<br/>
+There are two different organisms, Blips and Predators. Blips eat static food in the world. Predators eat Blips for food. Blips will also run away from predators that are looking for blips to eat.
 
 ## Simulations
-I started with a baseline simulation to compare other simulations agains. A Simulation with only blips. 
+### First Simulation
+I started with a baseline simulation to compare other simulations agains. A Simulation with only blips. I filled the world with a limited amount of food. These were the results of the simulation: <br/>
+![alt text](/ReadmeImages/FirstSimulation.png)
+
+### Food Abundance Simulation
+
+### Predation Simulation
 
 ## Conclusion
 
