@@ -6,20 +6,41 @@ using System.IO;
 public struct DataRecord
 {
 
-    public DataRecord(uint tStep, uint blips, float blipSpeed, float blipVision)
+    public DataRecord(uint tStep, uint blips, float blipSpeed, float blipVision, uint bBorn, uint bDied
+                                , uint preds, float predSpeed, float predVision, uint pBorn, uint pDied)
     {
         timeStep = tStep;
+
         nrBlips = blips;
         blipAvgSpeed = blipSpeed;
         blipAvgVision = blipVision;
+        blipsBorn = bBorn;
+        blipsDied = bDied;
+
+        nrPredators = preds;
+        predAvgSpeed = predSpeed;
+        predAvgVision = predVision;
+        predsBorn = pBorn;
+        predsDied = pDied;
     }
 
-
+    //TIME
     public uint timeStep;
+
+    //BLIP STATS
     public uint nrBlips;
     public float blipAvgSpeed;
     public float blipAvgVision;
+    public uint blipsBorn;
+    public uint blipsDied;
 
+
+    //PREDATOR STATS
+    public uint nrPredators;
+    public float predAvgSpeed;
+    public float predAvgVision;
+    public uint predsBorn;
+    public uint predsDied;
 }
 
 public class SimulationScript : MonoBehaviour
@@ -148,12 +169,19 @@ public class SimulationScript : MonoBehaviour
             m_Predators = FindObjectsOfType<Predator>();
 
 
+
+
             for (int i = 0; i < m_AmountOfFood - m_Foods.Length; ++i)
             {
                 SpawnFood();
             }
 
             RecordData();
+
+            m_BlipsBorn = 0;
+            m_BlipsDied = 0;
+            m_PredsBorn = 0;
+            m_PredsDied = 0;
 
             m_CurrentTimeStep++;
         }
@@ -192,6 +220,25 @@ public class SimulationScript : MonoBehaviour
     //food getters
     public float GetBlipFoodEffectiveness() => m_BlipFoodEffectiveness;
     public float GetPredatorFoodEffectiveness() => m_PredatorFoodEffectiveness;
+
+    //record when blips and predators are born & died
+    public void BlipBorn()
+    {
+        m_BlipsBorn++;
+    }
+    public void BlipDied()
+    {
+        m_BlipsDied++;
+    }
+    public void PredatorBorn()
+    {
+        m_PredsBorn++;
+    }
+    public void PredatorDied()
+    {
+        m_PredsDied++;
+    }
+
 
     public Food GetClosestFood(Vector3 blipPos)
     {
@@ -305,6 +352,7 @@ public class SimulationScript : MonoBehaviour
     Vector2 m_WorldSize;
 
     [SerializeField]
+    [Range(0.01f, 1f)]
     private float m_TimeStep = 1f;
 
     private float m_Timer;
@@ -424,6 +472,12 @@ public class SimulationScript : MonoBehaviour
     private Blip[] m_Blips;
     private Food[] m_Foods;
     private Predator[] m_Predators;
+
+    private uint m_BlipsBorn = 0;
+    private uint m_BlipsDied = 0;
+    private uint m_PredsBorn = 0;
+    private uint m_PredsDied = 0;
+
     uint m_CurrentTimeStep;
 
 
@@ -445,24 +499,31 @@ public class SimulationScript : MonoBehaviour
 
     private void RecordData()
     {
-        m_DataRecords.Add(new DataRecord(m_CurrentTimeStep, (uint)m_Blips.Length, AverageBlipSpeed(), AverageBlipVision()));
+        m_DataRecords.Add(new DataRecord(m_CurrentTimeStep, (uint)m_Blips.Length, AverageBlipSpeed(), AverageBlipVision(), m_BlipsBorn, m_BlipsDied, (uint)m_Predators.Length, AveragePredatorSpeed(), AveragePredatorVision(), m_PredsBorn, m_PredsDied));
     }
 
     private void WriteDataToFile(string path, string fileName)
     {
-
+        //TODO: ADD MORE STATISTICS TO THE FILE WRITE (PREDATOR POP & GENETICS, DEATHS AND BIRTHS)
 
         //file content
         string fileContent = "";
 
-        fileContent += "TimeStep\t Blip Population\t Blip Speed\t Blip Vision\n";
+        fileContent += "TimeStep\t Blip Population\t Blip Speed\t Blip Vision\t Blips Born\t Blips Died\t Predator Population\t Predator Speed\t Predator Vision\t Predators Born\t Predators Died\n";
 
         foreach (DataRecord record in m_DataRecords)
         {
             fileContent += record.timeStep.ToString() + "\t"
                 + record.nrBlips.ToString() + "\t"
                 + record.blipAvgSpeed.ToString(System.Globalization.CultureInfo.CreateSpecificCulture("fr-FR")) + "\t"
-                + record.blipAvgVision.ToString(System.Globalization.CultureInfo.CreateSpecificCulture("fr-FR")) + "\n";
+                + record.blipAvgVision.ToString(System.Globalization.CultureInfo.CreateSpecificCulture("fr-FR")) + "\t"
+                + record.blipsBorn.ToString() + "\t"
+                + record.blipsDied.ToString() + "\t"
+                + record.nrPredators.ToString() + "\t"
+                + record.predAvgSpeed.ToString(System.Globalization.CultureInfo.CreateSpecificCulture("fr-FR")) + "\t"
+                + record.predAvgVision.ToString(System.Globalization.CultureInfo.CreateSpecificCulture("fr-FR")) + "\t"
+                + record.predsBorn.ToString() + "\t"
+                + record.predsDied.ToString() + "\n";
         }
 
 
@@ -486,9 +547,6 @@ public class SimulationScript : MonoBehaviour
         return avgSpeed;
     }
 
-
-
-
     //blip average vision range
     private float AverageBlipVision()
     {
@@ -501,6 +559,33 @@ public class SimulationScript : MonoBehaviour
         avgVision /= m_Blips.Length;
         return avgVision;
     }
+
+    //predator average speed
+    private float AveragePredatorSpeed()
+    {
+        float avgSpeed = 0f;
+        foreach (Predator pred in m_Predators)
+        {
+            avgSpeed += pred.GetGenes().GetMaxSpeed();
+        }
+
+        avgSpeed /= m_Predators.Length;
+        return avgSpeed;
+    }
+
+    //predator average vision range
+    private float AveragePredatorVision()
+    {
+        float avgVision = 0f;
+        foreach (Predator pred in m_Predators)
+        {
+            avgVision += pred.GetGenes().GetVisionRange();
+        }
+
+        avgVision /= m_Predators.Length;
+        return avgVision;
+    }
+
 
 
 

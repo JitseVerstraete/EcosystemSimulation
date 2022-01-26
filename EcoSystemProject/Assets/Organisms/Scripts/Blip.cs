@@ -15,6 +15,11 @@ public class Blip : BaseOrganism
         this.enabled = true;
     }
 
+    private void OnDestroy()
+    {
+        SimulationScript.Instance.BlipDied();
+    }
+
     public void InitializeBlip(Genetics genetics, int startAge = 0)
     {
         m_Hunger = 0.5f;
@@ -115,6 +120,8 @@ public class Blip : BaseOrganism
 
                 m_Partner.DoneMating();
                 DoneMating();
+
+                SimulationScript.Instance.BlipBorn();
 
 
             }

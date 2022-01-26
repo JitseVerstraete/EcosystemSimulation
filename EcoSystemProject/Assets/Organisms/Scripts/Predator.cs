@@ -11,6 +11,11 @@ public class Predator : BaseOrganism
         this.enabled = true;
     }
 
+    private void OnDestroy()
+    {
+        SimulationScript.Instance.PredatorDied();
+    }
+
     public void InitializePredator(Genetics genetics, int startAge = 0)
     {
         m_Hunger = 0.5f;
@@ -93,9 +98,11 @@ public class Predator : BaseOrganism
                 Predator b = go.GetComponent<Predator>();
 
                 b.InitializePredator(Genetics.Inherit(m_Genes, m_Partner.m_Genes));
-
+               
                 m_Partner.DoneMating();
                 DoneMating();
+
+                SimulationScript.Instance.PredatorBorn();
 
 
             }
@@ -179,7 +186,7 @@ public class Predator : BaseOrganism
                         movementDir /= 2;
                     }
 
-                    //if the blip reached the potential mate, set them as eachothers partner
+                    //if the predator reached the potential mate, set them as eachothers partner
                     if (predatorDistance < 1f)
                     {
                         if (AvailableForMating() && closestPredator.AvailableForMating())
@@ -210,7 +217,7 @@ public class Predator : BaseOrganism
         m_PreviousPos = gameObject.transform.position;
 
 
-        //KEEP THE BLIPS IN THE PLAY FIELD
+        //KEEP THE PREDATOR IN THE PLAY FIELD
         Vector2 worldSize = SimulationScript.Instance.GetWorldSize();
         //x
         if (m_TargetPos.x < -worldSize.x)
