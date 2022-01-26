@@ -4,13 +4,13 @@
 
 In nature, an organisms genes determine it's ability to survive in it's environment. Organisms with better genes will have a bigger chance to survive long enough to reproduce and pass on their good genes. The gene pool of the organism will adapt to their current environment as the individuals with worse genes will not survive long enough to reproduce and pass on these genes.<br/>
 <br/>
-In this project, I want to simulate an organism with a certain set of traits determined by certain genes and see how different environments and situations affect the way the evolve over time. Not all genes will thrive in every environment, factors like predation, food availability and even the current population's size and genes.
+In this project, I want to simulate an organism (called Blips) with a certain set of traits determined by certain genes and see how different environments and situations affect the way the evolve over time. Not all genes will thrive in every environment, factors like predation, food availability and even the current population's size and genes.
 In this project, I want to simulate an organism with a certain set of traits determined by certain genes and see how different environments and situations affect the way they evolve over time. Not all genes will thrive in every environment, factors like predation, food availability and even the current population's size and genes.<br/>
 
 ![alt text](/ReadmeImages/Sim.gif)
 
 ## Project Description
-This simulation will work by updating all the organisms in the virtual space once every "time step". The time step is a value that defines how fast the simulation will go. 
+This simulation will work by updating all the Blips (and Predators) in the virtual space once every "time step". The time step is a value that defines how fast the simulation will go. 
 
 ### Organism Genes:
 - Speed: defines how fast the organism will move
