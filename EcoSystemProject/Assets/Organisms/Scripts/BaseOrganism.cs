@@ -120,7 +120,8 @@ public class BaseOrganism : MonoBehaviour
 
     //REPRODUCTIVE URGE
     protected float m_CurrentReproductiveUrge; //value between 0 and 1 that is increase with 1/maxAge every timestep.
-    protected int m_MatingCooldown;
+    protected int m_MatingCooldown = 0;
+    protected int m_MatingCounter = 0;
 
     //LIFETIME
     protected int m_Age; //increases by 1 every timestep
@@ -130,7 +131,31 @@ public class BaseOrganism : MonoBehaviour
     protected Vector3 m_PreviousPos;
     protected float m_PosInterpolationTValue = 0f;
 
+    //genes and state
     protected Genetics m_Genes;
     protected OrganismState m_State;
+
+
+    protected Vector2 Wander(float angle)
+    {
+        //no food in sight
+        float addedAngle = Random.Range(-angle, angle);
+        float currentAngle = gameObject.transform.rotation.eulerAngles.z;
+
+        Quaternion newRot = Quaternion.AngleAxis(currentAngle + addedAngle, Vector3.forward);
+        Vector3 movementDir = newRot * Vector3.right;
+        return movementDir;
+    }
+
+    protected float CalulateHunger()
+    {
+        const float movementSpeedWeight = 0.7f;
+        const float visionRangeWeight = 0.3f;
+        float movementSpeedCost = movementSpeedWeight * Mathf.Pow(m_Genes.GetMaxSpeed(), 1.1f);
+        float visionRangeCost = visionRangeWeight * Mathf.Pow(m_Genes.GetVisionRange() / 2, 1.1f);
+
+        return movementSpeedCost + visionRangeCost;
+    }
+
 
 }

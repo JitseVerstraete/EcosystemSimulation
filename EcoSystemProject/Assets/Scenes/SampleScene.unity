@@ -142,22 +142,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_SimulationName: TestSimulation
   m_SetWorldSize: 20
-  m_TimeStep: 0.1
-  m_MutationChance: 1
-  m_MutationAmount: 0.1
+  m_TimeStep: 0.01
+  m_MutationChance: 0.72
+  m_MutationAmount: 0.0509
   m_BlipPrefab: {fileID: 5731147864839474513, guid: 3d5540021d87d224baeae94745275966, type: 3}
   m_InitialNrBlips: 20
   m_BlipLifeSpan: 100
-  m_BlipMaxHunger: 200
+  m_BlipMaxHunger: 300
   m_MinSpeed: 1
   m_MaxSpeed: 2
   m_MinVisionRange: 7
   m_MaxVisionRange: 10
   m_BlipMatingTime: 5
-  m_MatingCost: 0.2
+  m_MatingCost: 0.094
   m_MatingCooldown: 10
   m_FoodPrefab: {fileID: 8736920607726299253, guid: 65ce9c9f1ff31394db8d54eeeced501f, type: 3}
-  m_AmountOfFood: 10
+  m_AmountOfFood: 15
   m_FoodEffectiveness: 1
 --- !u!1 &206917990
 GameObject:

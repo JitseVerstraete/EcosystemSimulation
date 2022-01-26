@@ -50,7 +50,7 @@ public class SimulationScript : MonoBehaviour
         m_WorldSize.y = m_SetWorldSize;
 
 
-        //initialize Stating Population
+        //initialize Blip Stating Population
         for (int i = 0; i < m_InitialNrBlips; i++)
         {
             //random position
@@ -71,10 +71,10 @@ public class SimulationScript : MonoBehaviour
                 blipScript = tempBlip.AddComponent<Blip>();
             }
 
-            float speed0 = Random.Range(m_MinSpeed, m_MaxSpeed);
-            float speed1 = Random.Range(m_MinSpeed, m_MaxSpeed);
-            float vision0 = Random.Range(m_MinVisionRange, m_MaxVisionRange);
-            float vision1 = Random.Range(m_MinVisionRange, m_MaxVisionRange);
+            float speed0 = Random.Range(m_BlipMinSpeed, m_BlipMaxSpeed);
+            float speed1 = Random.Range(m_BlipMinSpeed, m_BlipMaxSpeed);
+            float vision0 = Random.Range(m_BlipMinVisionRange, m_BlipMaxVisionRange);
+            float vision1 = Random.Range(m_BlipMinVisionRange, m_BlipMaxVisionRange);
 
 
 
@@ -84,6 +84,42 @@ public class SimulationScript : MonoBehaviour
 
 
             blipScript.InitializeBlip(startGenetics, Random.Range(0, m_BlipLifeSpan / 2));
+        }
+
+        //initialize Predator Stating Population
+        for (int i = 0; i < m_InitialNrPredators; i++)
+        {
+            //random position
+            Vector3 predPos = new Vector3(Random.Range(-m_WorldSize.x, m_WorldSize.x), Random.Range(-m_WorldSize.y, m_WorldSize.y), 0f);
+
+            //random rotation
+            Quaternion predRot = Quaternion.AngleAxis(Random.Range(0f, 360f), Vector3.forward);
+
+            //create blip
+            GameObject tempPredator = Instantiate(m_PredatorPrefab);
+            tempPredator.name = "PREDATOR";
+
+            tempPredator.transform.position = predPos;
+            tempPredator.transform.rotation = predRot;
+            Predator blipScript = tempPredator.GetComponent<Predator>();
+            if (blipScript == null)
+            {
+                blipScript = tempPredator.AddComponent<Predator>();
+            }
+
+            float speed0 = Random.Range(m_PredatorMinSpeed, m_PredatorMaxSpeed);
+            float speed1 = Random.Range(m_PredatorMinSpeed, m_PredatorMaxSpeed);
+            float vision0 = Random.Range(m_PredatorMinVisionRange, m_PredatorMaxVisionRange);
+            float vision1 = Random.Range(m_PredatorMinVisionRange, m_PredatorMaxVisionRange);
+
+
+
+            //set Genetics
+            Genetics startGenetics = new Genetics(speed0, speed1, vision0, vision1);
+
+
+
+            blipScript.InitializePredator(startGenetics, Random.Range(0, m_BlipLifeSpan / 2));
         }
 
         //initialize food
@@ -109,10 +145,10 @@ public class SimulationScript : MonoBehaviour
             //record current foods and blips
             m_Blips = FindObjectsOfType<Blip>();
             m_Foods = FindObjectsOfType<Food>();
+            m_Predators = FindObjectsOfType<Predator>();
 
 
-            GameObject[] foods = GameObject.FindGameObjectsWithTag("Food");
-            for (int i = 0; i < m_AmountOfFood - foods.Length; ++i)
+            for (int i = 0; i < m_AmountOfFood - m_Foods.Length; ++i)
             {
                 SpawnFood();
             }
@@ -134,17 +170,28 @@ public class SimulationScript : MonoBehaviour
         WriteDataToFile(m_FilePath, m_SimulationName);
     }
 
+    //simulation getters
     public bool UpdateSimulation() => m_UpdateSimulation;
     public Vector3 GetWorldSize() => m_WorldSize;
     public float GetTimeStep() => m_TimeStep;
+    //mutation getters
+    public float GetMutationChance() => m_MutationChance;
+    public float GetMutationAmount() => m_MutationAmount;
+    //blip getters
     public int GetBlipMatingTime() => m_BlipMatingTime;
     public int GetBlipLifeSpan() => m_BlipLifeSpan;
     public float GetBlipMaxHunger() => m_BlipMaxHunger;
-    public float GetFoodEffectiveness() => m_FoodEffectiveness;
-    public float GetMatingCost() => m_MatingCost;
-    public int GetMatingCooldown() => m_MatingCooldown;
-    public float GetMutationChance() => m_MutationChance;
-    public float GetMutationAmount() => m_MutationAmount;
+    public float GetBlipMatingCost() => m_BlipMatingCost;
+    public int GetBlipMatingCooldown() => m_BlipMatingCooldown;
+    //predator getters
+    public int GetPredatorMatingTime() => m_PredatorMatingTime;
+    public int GetPredatorLifeSpan() => m_PredatorLifeSpan;
+    public float GetPredatorMaxHunger() => m_PredatorMaxHunger;
+    public float GetPredatorMatingCost() => m_PredatorMatingCost;
+    public int GetPredatorMatingCooldown() => m_PredatorMatingCooldown;
+    //food getters
+    public float GetBlipFoodEffectiveness() => m_BlipFoodEffectiveness;
+    public float GetPredatorFoodEffectiveness() => m_PredatorFoodEffectiveness;
 
     public Food GetClosestFood(Vector3 blipPos)
     {
@@ -165,7 +212,8 @@ public class SimulationScript : MonoBehaviour
         return closestFood;
     }
 
-    public Blip GetClosestPartner(Vector3 blipPos)
+    //get closest Blip for mating
+    public Blip GetClosestBlipPartner(Vector3 blipPos)
     {
         if (m_Blips.Length <= 0)
             return null;
@@ -174,7 +222,6 @@ public class SimulationScript : MonoBehaviour
         Blip closestPartner = null;
         foreach (Blip blip in m_Blips)
         {
-
             if (!(blipPos == blip.gameObject.transform.position) && Vector3.Distance(blip.gameObject.transform.position, blipPos) < distance)
             {
                 if (blip.AvailableForMating())
@@ -186,6 +233,67 @@ public class SimulationScript : MonoBehaviour
         }
         return closestPartner;
     }
+
+    public Blip GetClosestBlip(Vector3 pos)
+    {
+        if (m_Blips.Length <= 0)
+            return null;
+
+        float distance = float.MaxValue;
+        Blip closestBlip = null;
+        foreach (Blip blip in m_Blips)
+        {
+            if (!(pos == blip.gameObject.transform.position) && Vector3.Distance(blip.gameObject.transform.position, pos) < distance)
+            {
+                distance = Vector3.Distance(blip.transform.position, pos);
+                closestBlip = blip;
+
+            }
+        }
+        return closestBlip;
+    }
+
+    //get closest Predator for mating
+    public Predator GetClosestPredatorPartner(Vector3 predatorPos)
+    {
+        if (m_Predators.Length <= 0)
+            return null;
+
+        float distance = float.MaxValue;
+        Predator closestPartner = null;
+        foreach (Predator predator in m_Predators)
+        {
+            if (!(predatorPos == predator.gameObject.transform.position) && Vector3.Distance(predator.gameObject.transform.position, predatorPos) < distance)
+            {
+                if (predator.AvailableForMating())
+                {
+                    distance = Vector3.Distance(predator.transform.position, predatorPos);
+                    closestPartner = predator;
+                }
+            }
+        }
+        return closestPartner;
+    }
+
+    public Predator GetClosestPredator(Vector3 pos)
+    {
+        if (m_Predators.Length <= 0)
+            return null;
+
+        float distance = float.MaxValue;
+        Predator closestPredator = null;
+        foreach (Predator predator in m_Predators)
+        {
+            if (!(pos == predator.gameObject.transform.position) && Vector3.Distance(predator.gameObject.transform.position, pos) < distance)
+            {
+                distance = Vector3.Distance(predator.transform.position, pos);
+                closestPredator = predator;
+            }
+        }
+        return closestPredator;
+    }
+
+
 
     ///++++++++++++++++++++
     /// SIMULATION SETTINGS
@@ -203,8 +311,11 @@ public class SimulationScript : MonoBehaviour
     private bool m_UpdateSimulation = false;
 
 
-    [Header("Mutation Settings")]
+    [Space(20)]
 
+
+
+    [Header("Mutation Settings", order = 1)]
     [Range(0f, 1f)]
     [SerializeField]
     private float m_MutationChance = 0f;
@@ -214,10 +325,15 @@ public class SimulationScript : MonoBehaviour
     private float m_MutationAmount = 0f;
 
 
+    [Space(20)]
+
+
     //BLIPS 
-    [Header("Blip Settings")]
-    public GameObject m_BlipPrefab;
-    public int m_InitialNrBlips = 0;
+    [Header("Blip Settings", order = 1)]
+    [SerializeField]
+    private GameObject m_BlipPrefab = null;
+    [SerializeField]
+    private int m_InitialNrBlips = 0;
 
     [Space(10)]
     [SerializeField]
@@ -225,38 +341,89 @@ public class SimulationScript : MonoBehaviour
     [SerializeField]
     private float m_BlipMaxHunger = 100f;
 
-    [Space(10)]
-    public float m_MinSpeed;
-    public float m_MaxSpeed;
-
-    [Space(10)]
-    public float m_MinVisionRange;
-    public float m_MaxVisionRange;
 
     [Space(10)]
     [SerializeField]
     private int m_BlipMatingTime = 0;
+    [Range(0f, 1f)]
+    [SerializeField]
+    private float m_BlipMatingCost = 0f;
+    [SerializeField]
+    private int m_BlipMatingCooldown = 0;
+
+    [Header("Blip Starting Genetics", order = 1)]
+    [SerializeField]
+    private float m_BlipMinSpeed = 0f;
+    [SerializeField]
+    private float m_BlipMaxSpeed = 0f;
+
+    [Space(10)]
+    [SerializeField]
+    private float m_BlipMinVisionRange = 0f;
+    [SerializeField]
+    private float m_BlipMaxVisionRange = 0f;
+
+
+    [Space(20)]
+
+
+    //PREDATORS
+    [Header("Predator Settings", order = 1)]
+    [SerializeField]
+    private GameObject m_PredatorPrefab;
+    [SerializeField]
+    private int m_InitialNrPredators = 0;
+
+    [Space(10)]
+    [SerializeField]
+    private int m_PredatorLifeSpan = 100;
+    [SerializeField]
+    private float m_PredatorMaxHunger = 100f;
+
+    [Space(10)]
+    [SerializeField]
+    private int m_PredatorMatingTime = 0;
 
     [Range(0f, 1f)]
     [SerializeField]
-    private float m_MatingCost = 0f;
+    private float m_PredatorMatingCost = 0f;
     [SerializeField]
-    private int m_MatingCooldown = 0;
+    private int m_PredatorMatingCooldown = 0;
 
+    [Header("Predator Starting Genetics", order = 1)]
+    [SerializeField]
+    private float m_PredatorMinSpeed = 0f;
+    [SerializeField]
+    private float m_PredatorMaxSpeed = 0f;
+
+    [Space(10)]
+    [SerializeField]
+    private float m_PredatorMinVisionRange = 0f;
+    [SerializeField]
+    private float m_PredatorMaxVisionRange = 0f;
+
+
+    [Space(20)]
 
     //FOOD
-    [Header("Food Settings")]
-    public GameObject m_FoodPrefab;
-    public int m_AmountOfFood = 0;
+    [Header("Food Settings", order = 1)]
+    [SerializeField]
+    private GameObject m_FoodPrefab;
+    [SerializeField]
+    private int m_AmountOfFood = 0;
 
     [Range(0f, 1f)]
     [SerializeField]
-    private float m_FoodEffectiveness = 1f;
+    private float m_BlipFoodEffectiveness = 1f;
+    [Range(0f, 1f)]
+    [SerializeField]
+    private float m_PredatorFoodEffectiveness = 1f;
 
 
     //data
     private Blip[] m_Blips;
     private Food[] m_Foods;
+    private Predator[] m_Predators;
     uint m_CurrentTimeStep;
 
 
@@ -292,7 +459,10 @@ public class SimulationScript : MonoBehaviour
 
         foreach (DataRecord record in m_DataRecords)
         {
-            fileContent += record.timeStep.ToString() + "\t" + record.nrBlips.ToString() + "\t" + record.blipAvgSpeed.ToString(System.Globalization.CultureInfo.CreateSpecificCulture("fr-FR")) + "\t" + record.blipAvgVision.ToString(System.Globalization.CultureInfo.CreateSpecificCulture("fr-FR")) + "\n"; ;
+            fileContent += record.timeStep.ToString() + "\t"
+                + record.nrBlips.ToString() + "\t"
+                + record.blipAvgSpeed.ToString(System.Globalization.CultureInfo.CreateSpecificCulture("fr-FR")) + "\t"
+                + record.blipAvgVision.ToString(System.Globalization.CultureInfo.CreateSpecificCulture("fr-FR")) + "\n";
         }
 
 
@@ -307,7 +477,7 @@ public class SimulationScript : MonoBehaviour
     private float AverageBlipSpeed()
     {
         float avgSpeed = 0f;
-        foreach(Blip blip in m_Blips)
+        foreach (Blip blip in m_Blips)
         {
             avgSpeed += blip.GetGenes().GetMaxSpeed();
         }
@@ -325,7 +495,7 @@ public class SimulationScript : MonoBehaviour
         float avgVision = 0f;
         foreach (Blip blip in m_Blips)
         {
-            avgVision += blip.GetGenes().GetMaxSpeed();
+            avgVision += blip.GetGenes().GetVisionRange();
         }
 
         avgVision /= m_Blips.Length;

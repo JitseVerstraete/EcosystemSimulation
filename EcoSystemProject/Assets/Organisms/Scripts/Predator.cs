@@ -2,20 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-
-
-public class Blip : BaseOrganism
+public class Predator : BaseOrganism
 {
-    Blip m_Partner = null;
-    bool m_IsEaten = false;
+    Predator m_Partner = null;
 
     private void OnDisable()
     {
         this.enabled = true;
     }
 
-    public void InitializeBlip(Genetics genetics, int startAge = 0)
+    public void InitializePredator(Genetics genetics, int startAge = 0)
     {
         m_Hunger = 0.5f;
         m_Age = startAge;
@@ -27,13 +23,12 @@ public class Blip : BaseOrganism
 
         m_MatingCooldown = 0;
     }
-
     public bool AvailableForMating()
     {
         return m_State == OrganismState.LookingForMate && m_Partner == null;
     }
 
-    public void SetPartner(Blip partner)
+    public void SetPartner(Predator partner)
     {
         m_Partner = partner;
     }
@@ -44,25 +39,16 @@ public class Blip : BaseOrganism
         m_Partner = null;
         m_State = OrganismState.LookingForFood;
         m_MatingCounter = 0;
-        m_Hunger += SimulationScript.Instance.GetBlipMatingCost();
-        m_MatingCooldown = SimulationScript.Instance.GetBlipMatingCooldown();
+        m_Hunger += SimulationScript.Instance.GetPredatorMatingCost();
+        m_MatingCooldown = SimulationScript.Instance.GetPredatorMatingCooldown();
     }
-
-    public bool IsEaten() => m_IsEaten;
-
-    public void EatBlip()
-    {
-        m_IsEaten = true;
-    }
-
 
     private void Update()
     {
-        if (SimulationScript.Instance.UpdateSimulation())
+        if(SimulationScript.Instance.UpdateSimulation())
         {
             UpdateTimeStep();
         }
-
 
         //interpolate position between previous position and target position
         if (SimulationScript.Instance.GetTimeStep() == 0)
@@ -72,25 +58,20 @@ public class Blip : BaseOrganism
         gameObject.transform.position = Vector3.Lerp(m_PreviousPos, m_TargetPos, m_PosInterpolationTValue);
     }
 
-
-    // Update is called once per frame
     protected override void UpdateTimeStep()
     {
-
         //update hunger, age, reproductive urge and mating cooldown
-        m_Hunger += (CalulateHunger() / SimulationScript.Instance.GetBlipMaxHunger());
+        m_Hunger += (CalulateHunger() / SimulationScript.Instance.GetPredatorMaxHunger());
         m_Age++;
-        m_CurrentReproductiveUrge += 1f / SimulationScript.Instance.GetBlipLifeSpan();
+        m_CurrentReproductiveUrge += 1f / SimulationScript.Instance.GetPredatorLifeSpan();
         m_MatingCooldown--;
-
-
 
         if (m_Hunger >= 1f)
         {
             print("died of hunger");
             Destroy(gameObject);
         }
-        if (m_Age >= SimulationScript.Instance.GetBlipLifeSpan())
+        if (m_Age >= SimulationScript.Instance.GetPredatorLifeSpan())
         {
             print("died of old age");
             Destroy(gameObject);
@@ -103,15 +84,15 @@ public class Blip : BaseOrganism
             m_TargetPos = gameObject.transform.position;
             m_MatingCounter++;
 
-            if (m_MatingCounter >= SimulationScript.Instance.GetBlipMatingTime())
+            if (m_MatingCounter >= SimulationScript.Instance.GetPredatorMatingTime())
             {
-                //create a new blip
+                //create a new predator
                 GameObject go = Instantiate(gameObject);
-                go.name = "BLIP";
+                go.name = "PREDATOR";
                 go.transform.position = Vector3.Lerp(gameObject.transform.position, m_Partner.gameObject.transform.position, 0.5f);
-                Blip b = go.GetComponent<Blip>();
+                Predator b = go.GetComponent<Predator>();
 
-                b.InitializeBlip(Genetics.Inherit(m_Genes, m_Partner.m_Genes));
+                b.InitializePredator(Genetics.Inherit(m_Genes, m_Partner.m_Genes));
 
                 m_Partner.DoneMating();
                 DoneMating();
@@ -121,7 +102,6 @@ public class Blip : BaseOrganism
             return;
         }
 
-
         //update state
         if (m_CurrentReproductiveUrge > m_Hunger && m_MatingCooldown <= 0)
             m_State = OrganismState.LookingForMate;
@@ -129,28 +109,26 @@ public class Blip : BaseOrganism
             m_State = OrganismState.LookingForFood;
 
 
-
-
         //Handle Movement
         Vector3 movementDir = new Vector3();
 
-
+        //do movement switch
         switch (m_State)
         {
             //MOVEMENT WHEN LOOKING FOR FOOD
             case OrganismState.LookingForFood:
-                Food closestFood = SimulationScript.Instance.GetClosestFood(gameObject.transform.position);
+                Blip closestBlipFood = SimulationScript.Instance.GetClosestBlip(gameObject.transform.position);
                 float FoodDistance;
 
-                if (closestFood == null)
+                if (closestBlipFood == null)
                     FoodDistance = float.MaxValue;
                 else
-                    FoodDistance = Vector3.Distance(closestFood.transform.position, gameObject.transform.position);
+                    FoodDistance = Vector3.Distance(closestBlipFood.transform.position, gameObject.transform.position);
 
                 if (FoodDistance < m_Genes.GetVisionRange())
                 {
                     //go to food
-                    movementDir = closestFood.transform.position - gameObject.transform.position;
+                    movementDir = closestBlipFood.transform.position - gameObject.transform.position;
                     if (movementDir.magnitude > m_Genes.GetMaxSpeed())
                     {
                         movementDir = movementDir.normalized * m_Genes.GetMaxSpeed();
@@ -159,20 +137,20 @@ public class Blip : BaseOrganism
                     //if close enough to food, destroy it
 
                     //Blip is full again :))
-                    if (FoodDistance < 1f && !closestFood.IsEaten())
+                    if (FoodDistance < 1f && !closestBlipFood.IsEaten())
                     {
-                        m_Hunger -= SimulationScript.Instance.GetBlipFoodEffectiveness();
+                        m_Hunger -= SimulationScript.Instance.GetPredatorFoodEffectiveness();
                         m_Hunger = Mathf.Clamp(m_Hunger, 0f, 1.01f);
 
                         //Set food as eaten and destroy the food after
-                        closestFood.EatFood();
-                        Destroy(closestFood.gameObject);
+                        closestBlipFood.EatBlip();
+                        Destroy(closestBlipFood.gameObject);
                     }
 
                 }
                 else
                 {
-                    //no food in sight
+                    //no blips in sight
                     movementDir = Wander(60f);
                     movementDir = movementDir.normalized * m_Genes.GetMaxSpeed();
                 }
@@ -180,18 +158,18 @@ public class Blip : BaseOrganism
 
             //MOVEMENT WHEN LOOKING FOR MATE
             case OrganismState.LookingForMate:
-                Blip closestBlip = SimulationScript.Instance.GetClosestBlipPartner(gameObject.transform.position);
-                float BlipDistance;
+                Predator closestPredator = SimulationScript.Instance.GetClosestPredatorPartner(gameObject.transform.position);
+                float predatorDistance;
 
-                if (closestBlip == null)
-                    BlipDistance = float.MaxValue;
+                if (closestPredator == null)
+                    predatorDistance = float.MaxValue;
                 else
-                    BlipDistance = Vector3.Distance(closestBlip.gameObject.transform.position, gameObject.transform.position);
+                    predatorDistance = Vector3.Distance(closestPredator.gameObject.transform.position, gameObject.transform.position);
 
-                if (BlipDistance < m_Genes.GetVisionRange())
+                if (predatorDistance < m_Genes.GetVisionRange())
                 {
                     //go to partner
-                    movementDir = closestBlip.gameObject.transform.position - gameObject.transform.position;
+                    movementDir = closestPredator.gameObject.transform.position - gameObject.transform.position;
                     if (movementDir.magnitude > m_Genes.GetMaxSpeed())
                     {
                         movementDir = movementDir.normalized * m_Genes.GetMaxSpeed();
@@ -202,13 +180,13 @@ public class Blip : BaseOrganism
                     }
 
                     //if the blip reached the potential mate, set them as eachothers partner
-                    if (BlipDistance < 1f)
+                    if (predatorDistance < 1f)
                     {
-                        if (AvailableForMating() && closestBlip.AvailableForMating())
+                        if (AvailableForMating() && closestPredator.AvailableForMating())
                         {
                             //set each other as partners
-                            SetPartner(closestBlip);
-                            closestBlip.SetPartner(this);
+                            SetPartner(closestPredator);
+                            closestPredator.SetPartner(this);
                         }
                     }
 
@@ -225,8 +203,6 @@ public class Blip : BaseOrganism
             default:
                 break;
         }
-
-
 
 
 
@@ -265,8 +241,12 @@ public class Blip : BaseOrganism
 
 
 
+
         m_PosInterpolationTValue = 0f;
+
     }
+
+
 
 
 
