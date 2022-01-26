@@ -7,7 +7,7 @@ In nature, an organisms genes determine it's ability to survive in it's environm
 In this project, I want to simulate an organism with a certain set of traits determined by certain genes and see how different environments and situations affect the way the evolve over time. Not all genes will thrive in every environment, factors like predation, food availability and even the current population's size and genes.
 In this project, I want to simulate an organism with a certain set of traits determined by certain genes and see how different environments and situations affect the way they evolve over time. Not all genes will thrive in every environment, factors like predation, food availability and even the current population's size and genes.<br/>
 
-INSERT GIF HERE
+![alt text](/ReadmeImages/Sim.gif)
 
 ## Project Description
 This simulation will work by updating all the organisms in the virtual space once every "time step". The time step is a value that defines how fast the simulation will go. 
@@ -28,13 +28,14 @@ There are two different organisms, Blips and Predators. Blips eat static food in
 ## Simulations
 ### First Simulation
 I started with a baseline simulation to compare other simulations agains. A Simulation with only blips. I filled the world with a limited amount of food. These were the results of the simulation: <br/>
-![alt text](/ReadmeImages/Sim.gif)
+![alt text](/ReadmeImages/FirstSimulation.png)
 
 ### Food Abundance Simulation
 ![alt text](/ReadmeImages/FoodAbundance.png)
 
 
 ### Predation Simulation
+![alt text](/ReadmeImages/PredationSimulation.png)
 
 ## Conclusion
 
