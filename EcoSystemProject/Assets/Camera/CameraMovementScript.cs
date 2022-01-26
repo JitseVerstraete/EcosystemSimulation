@@ -75,7 +75,7 @@ public class CameraMovementScript : MonoBehaviour
     //private members
     private Vector3 m_PreviousMousePosition;
     private Vector3 m_CurrentMousePosition;
-    private float m_ZoomSpeed = 1f;
+    private float m_ZoomSpeed = 2f;
     private bool m_MouseDown = false;
 
     private float m_HalfHeight;

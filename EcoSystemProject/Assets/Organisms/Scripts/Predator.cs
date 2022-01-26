@@ -13,7 +13,7 @@ public class Predator : BaseOrganism
 
     private void OnDestroy()
     {
-        SimulationScript.Instance.PredatorDied();
+       
     }
 
     public void InitializePredator(Genetics genetics, int startAge = 0)
@@ -50,7 +50,7 @@ public class Predator : BaseOrganism
 
     private void Update()
     {
-        if(SimulationScript.Instance.UpdateSimulation())
+        if (SimulationScript.Instance.UpdateSimulation())
         {
             UpdateTimeStep();
         }
@@ -73,12 +73,12 @@ public class Predator : BaseOrganism
 
         if (m_Hunger >= 1f)
         {
-            print("died of hunger");
+            print("PREDATOR died of hunger");
             Destroy(gameObject);
         }
         if (m_Age >= SimulationScript.Instance.GetPredatorLifeSpan())
         {
-            print("died of old age");
+            print("PREDATOR died of old age");
             Destroy(gameObject);
         }
 
@@ -97,12 +97,12 @@ public class Predator : BaseOrganism
                 go.transform.position = Vector3.Lerp(gameObject.transform.position, m_Partner.gameObject.transform.position, 0.5f);
                 Predator b = go.GetComponent<Predator>();
 
-                b.InitializePredator(Genetics.Inherit(m_Genes, m_Partner.m_Genes));
-               
+                b.InitializePredator(Genetics.Inherit(m_Genes, m_Partner.m_Genes, SimulationScript.Instance.GetPredatorMutationChance(), SimulationScript.Instance.GetPredatorMutationAmount()));
+
                 m_Partner.DoneMating();
                 DoneMating();
 
-                SimulationScript.Instance.PredatorBorn();
+     
 
 
             }
@@ -136,10 +136,9 @@ public class Predator : BaseOrganism
                 {
                     //go to food
                     movementDir = closestBlipFood.transform.position - gameObject.transform.position;
-                    if (movementDir.magnitude > m_Genes.GetMaxSpeed())
-                    {
-                        movementDir = movementDir.normalized * m_Genes.GetMaxSpeed();
-                    }
+
+                    movementDir += movementDir.normalized * closestBlipFood.GetGenes().GetMaxSpeed();
+                    movementDir = Vector3.ClampMagnitude(movementDir, m_Genes.GetMaxSpeed());
 
                     //if close enough to food, destroy it
 
@@ -151,6 +150,7 @@ public class Predator : BaseOrganism
 
                         //Set food as eaten and destroy the food after
                         closestBlipFood.EatBlip();
+                        print("BLIP was eaten");
                         Destroy(closestBlipFood.gameObject);
                     }
 

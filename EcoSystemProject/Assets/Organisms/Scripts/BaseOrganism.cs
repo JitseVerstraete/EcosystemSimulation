@@ -7,7 +7,8 @@ using UnityEngine;
 public enum OrganismState
 {
     LookingForFood = 0,
-    LookingForMate = 1
+    LookingForMate = 1,
+    Fleeing = 2
 }
 
 public class Genetics
@@ -40,7 +41,7 @@ public class Genetics
         return (m_VisionRangeGene[0] + m_VisionRangeGene[1]) / 2f;
     }
 
-    static public Genetics Inherit(Genetics parent1, Genetics parent2)
+    static public Genetics Inherit(Genetics parent1, Genetics parent2, float mutChance, float mutAmount)
     {
         Genetics childGenetics = new Genetics();
 
@@ -54,9 +55,9 @@ public class Genetics
         //maxSpeed mutations
         for (int i = 0; i < 2; ++i)
         {
-            if (Random.Range(0f, 1f) < SimulationScript.Instance.GetMutationChance())
+            if (Random.Range(0f, 1f) < mutChance)
             {
-                float mutationAmount = childGenetics.m_MaxSpeedGene[i] * SimulationScript.Instance.GetMutationAmount();
+                float mutationAmount = childGenetics.m_MaxSpeedGene[i] * mutAmount;
                 if (Random.Range(0, 2) == 0)
                     childGenetics.m_MaxSpeedGene[i] += mutationAmount;
                 else
@@ -68,9 +69,9 @@ public class Genetics
         //visionRange mutations
         for (int i = 0; i < 2; ++i)
         {
-            if (Random.Range(0f, 1f) < SimulationScript.Instance.GetMutationChance())
+            if (Random.Range(0f, 1f) < mutChance)
             {
-                float mutationAmount = childGenetics.m_VisionRangeGene[i] * SimulationScript.Instance.GetMutationAmount();
+                float mutationAmount = childGenetics.m_VisionRangeGene[i] * mutAmount;
                 if (Random.Range(0, 2) == 0)
                     childGenetics.m_VisionRangeGene[i] += mutationAmount;
                 else
@@ -102,6 +103,7 @@ public class BaseOrganism : MonoBehaviour
 
     public bool IsDead() => m_Dead;
     public Genetics GetGenes() => m_Genes;
+    public OrganismState GetState() => m_State;
 
 
     //make a custom Update that Updates the organism for one time step
@@ -149,10 +151,11 @@ public class BaseOrganism : MonoBehaviour
 
     protected float CalulateHunger()
     {
-        const float movementSpeedWeight = 0.7f;
-        const float visionRangeWeight = 0.3f;
-        float movementSpeedCost = movementSpeedWeight * Mathf.Pow(m_Genes.GetMaxSpeed(), 1.1f);
-        float visionRangeCost = visionRangeWeight * Mathf.Pow(m_Genes.GetVisionRange() / 2, 1.1f);
+        const float power = 1f;
+        const float movementSpeedWeight = 1f;
+        const float visionRangeWeight = 0f;
+        float movementSpeedCost = movementSpeedWeight * Mathf.Pow(m_Genes.GetMaxSpeed(), power);
+        float visionRangeCost = visionRangeWeight * Mathf.Pow(m_Genes.GetVisionRange() / 4, power);
 
         return movementSpeedCost + visionRangeCost;
     }

@@ -17,7 +17,7 @@ public class Blip : BaseOrganism
 
     private void OnDestroy()
     {
-        SimulationScript.Instance.BlipDied();
+
     }
 
     public void InitializeBlip(Genetics genetics, int startAge = 0)
@@ -92,12 +92,12 @@ public class Blip : BaseOrganism
 
         if (m_Hunger >= 1f)
         {
-            print("died of hunger");
+            print("BLIP died of hunger");
             Destroy(gameObject);
         }
         if (m_Age >= SimulationScript.Instance.GetBlipLifeSpan())
         {
-            print("died of old age");
+            print("BLIP died of old age");
             Destroy(gameObject);
         }
 
@@ -116,12 +116,12 @@ public class Blip : BaseOrganism
                 go.transform.position = Vector3.Lerp(gameObject.transform.position, m_Partner.gameObject.transform.position, 0.5f);
                 Blip b = go.GetComponent<Blip>();
 
-                b.InitializeBlip(Genetics.Inherit(m_Genes, m_Partner.m_Genes));
+                b.InitializeBlip(Genetics.Inherit(m_Genes, m_Partner.m_Genes, SimulationScript.Instance.GetBlipMutationChance(), SimulationScript.Instance.GetBlipMutationAmount()));
 
                 m_Partner.DoneMating();
                 DoneMating();
 
-                SimulationScript.Instance.BlipBorn();
+          
 
 
             }
@@ -130,7 +130,11 @@ public class Blip : BaseOrganism
 
 
         //update state
-        if (m_CurrentReproductiveUrge > m_Hunger && m_MatingCooldown <= 0)
+        Predator closestPred = SimulationScript.Instance.GetClosestDangerousPredator(gameObject.transform.position);
+
+        if (closestPred != null && Vector3.Distance(closestPred.gameObject.transform.position, gameObject.transform.position) < m_Genes.GetVisionRange())
+            m_State = OrganismState.Fleeing;
+        else if (m_CurrentReproductiveUrge > m_Hunger && m_MatingCooldown <= 0)
             m_State = OrganismState.LookingForMate;
         else
             m_State = OrganismState.LookingForFood;
@@ -227,6 +231,11 @@ public class Blip : BaseOrganism
                     movementDir = movementDir.normalized * m_Genes.GetMaxSpeed();
 
                 }
+                break;
+
+            case OrganismState.Fleeing:
+                movementDir = gameObject.transform.position - closestPred.gameObject.transform.position;
+                movementDir = movementDir.normalized * m_Genes.GetMaxSpeed();
                 break;
 
             default:
